@@ -2,8 +2,8 @@
 <odoo>
     <data>
 
-        <record id="infile_view_partner_form" model="ir.ui.view">
-            <field name="name">infile.res.partner.form</field>
+        <record id="view_partner_form_fel_gt" model="ir.ui.view">
+            <field name="name">res.partner.form.fel_gt</field>
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
