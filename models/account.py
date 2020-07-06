@@ -33,7 +33,7 @@ class AccountInvoice(models.Model):
     def dte_documento(self):
         self.ensure_one()
         factura = self
-        if factura.journal_id.usuario_fel and not factura.firma_fel and factura.amount_total != 0:
+        if not factura.firma_fel and factura.amount_total != 0:
             attr_qname = etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")
 
             NSMAP = {
@@ -270,7 +270,7 @@ class AccountInvoice(models.Model):
         DTE_NS = "{http://www.sat.gob.gt/dte/fel/0.1.0}"
         DS_NS = "{http://www.w3.org/2000/09/xmldsig#}"
     
-        if factura.journal_id.usuario_fel and factura.firma_fel:
+        if factura.firma_fel:
 
             tipo_documento_fel = factura.journal_id.tipo_documento_fel
             if tipo_documento_fel in ['FACT', 'FACM'] and factura.type == 'out_refund':
