@@ -286,7 +286,7 @@ class AccountInvoice(models.Model):
             hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%H:%M:%S')
             fecha_hora = fecha+'T'+hora
             
-            fecha_hoy = fields.Datetime.context_today(factura.date_invoice).strftime('%Y-%m-%d')
+            fecha_hoy = fields.Date.context_today(factura).strftime('%Y-%m-%d')
             fecha_hoy_hora = fecha_hoy+'T'+hora
 
             GTAnulacionDocumento = etree.Element(DTE_NS+"GTAnulacionDocumento", {}, Version="0.1", nsmap=NSMAP)
