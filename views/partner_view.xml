@@ -5,10 +5,10 @@
         <record id="view_partner_form_fel_gt" model="ir.ui.view">
             <field name="name">res.partner.form.fel_gt</field>
             <field name="model">res.partner</field>
-            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="inherit_id" ref="l10n_gt_extra.l10n_gt_view_res_partner_form"/>
             <field name="arch" type="xml">
                 <data>
-                    <field name="category_id" position="before">
+                    <field name="cui" position="after">
                         <field name="nombre_facturacion_fel"/>
                     </field>
                 </data>

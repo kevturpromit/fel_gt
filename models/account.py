@@ -10,17 +10,20 @@ from lxml import etree
 import requests
 import re
 
-#from import XMLSigner
+#from OpenSSL import crypto
+#import xmlsig
+#from xades import XAdESContext, template, utils, ObjectIdentifier
+#from xades.policy import GenericPolicyId, ImpliedPolicy
 
 import logging
 
-class AccountInvoice(models.Model):
-    _inherit = "account.invoice"
+class AccountMove(models.Model):
+    _inherit = "account.move"
 
     firma_fel = fields.Char('Firma FEL', copy=False)
     serie_fel = fields.Char('Serie FEL', copy=False)
     numero_fel = fields.Char('Numero FEL', copy=False)
-    factura_original_id = fields.Many2one('account.invoice', string="Factura original FEL")
+    factura_original_id = fields.Many2one('account.move', string="Factura original FEL", domain="[('type', '=', 'out_invoice')]")
     consignatario_fel = fields.Many2one('res.partner', string="Consignatario o Destinatario FEL")
     comprador_fel = fields.Many2one('res.partner', string="Comprador FEL")
     exportador_fel = fields.Many2one('res.partner', string="Exportador FEL")
@@ -33,7 +36,7 @@ class AccountInvoice(models.Model):
     def dte_documento(self):
         self.ensure_one()
         factura = self
-        if not factura.firma_fel and factura.amount_total != 0:
+        if factura.type in ['out_invoice', 'out_refund', 'in_invoice'] and not factura.firma_fel and factura.amount_total != 0:
             attr_qname = etree.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation")
 
             NSMAP = {
@@ -77,14 +80,14 @@ class AccountInvoice(models.Model):
             if factura.currency_id.id != factura.company_id.currency_id.id:
                 moneda = "USD"
 
-            fecha = fields.Date.from_string(factura.date_invoice).strftime('%Y-%m-%d')
-            hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%H:%M:%S')
+            fecha = factura.invoice_date.strftime('%Y-%m-%d')
+            hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
             DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
             if factura.tipo_gasto == 'importacion':
                 DatosGenerales.attrib['Exp'] = "SI"
 
-            Emisor = etree.SubElement(DatosEmision, DTE_NS+"Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=factura.journal_id.codigo_establecimiento_fel, CorreoEmisor=factura.company_id.email or '', NITEmisor=factura.company_id.vat.replace('-',''), NombreComercial=factura.journal_id.direccion.name, NombreEmisor=factura.company_id.name)
+            Emisor = etree.SubElement(DatosEmision, DTE_NS+"Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=str(factura.journal_id.codigo_establecimiento), CorreoEmisor=factura.company_id.email or '', NITEmisor=factura.company_id.vat.replace('-',''), NombreComercial=factura.journal_id.direccion.name, NombreEmisor=factura.company_id.name)
             DireccionEmisor = etree.SubElement(Emisor, DTE_NS+"DireccionEmisor")
             Direccion = etree.SubElement(DireccionEmisor, DTE_NS+"Direccion")
             Direccion.text = factura.journal_id.direccion.street or 'Ciudad'
@@ -113,7 +116,6 @@ class AccountInvoice(models.Model):
             DireccionReceptor = etree.SubElement(Receptor, DTE_NS+"DireccionReceptor")
             Direccion = etree.SubElement(DireccionReceptor, DTE_NS+"Direccion")
             Direccion.text = (factura.partner_id.street or '') + ' ' + (factura.partner_id.street2 or '')
-            # Direccion.text = " "
             CodigoPostal = etree.SubElement(DireccionReceptor, DTE_NS+"CodigoPostal")
             CodigoPostal.text = factura.partner_id.zip or '01001'
             Municipio = etree.SubElement(DireccionReceptor, DTE_NS+"Municipio")
@@ -153,7 +155,7 @@ class AccountInvoice(models.Model):
                 total_linea = precio_unitario * linea.quantity
                 total_linea_base = precio_unitario_base * linea.quantity
                 total_impuestos = total_linea - total_linea_base
-                cantidad_impuestos += len(linea.invoice_line_tax_ids)
+                cantidad_impuestos += len(linea.tax_ids)
 
                 Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
                 Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
@@ -168,7 +170,7 @@ class AccountInvoice(models.Model):
                 Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
                 Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
                 Descuento.text = '{:.6f}'.format(descuento)
-                if len(linea.invoice_line_tax_ids) > 0:
+                if len(linea.tax_ids) > 0:
                     Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
                     Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                     NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
@@ -255,6 +257,44 @@ class AccountInvoice(models.Model):
                     RetencionIVA.text = str(total_iva_retencion)
                     TotalMenosRetenciones = etree.SubElement(RetencionesFacturaEspecial, CFE_NS+"TotalMenosRetenciones")
                     TotalMenosRetenciones.text = str(factura.amount_total)
+
+            # signature = xmlsig.template.create(
+            #     xmlsig.constants.TransformInclC14N,
+            #     xmlsig.constants.TransformRsaSha256,
+            #     "Signature"
+            # )
+            # signature_id = utils.get_unique_id()
+            # ref_datos = xmlsig.template.add_reference(
+            #     signature, xmlsig.constants.TransformSha256, uri="#DatosEmision"
+            # )
+            # xmlsig.template.add_transform(ref_datos, xmlsig.constants.TransformEnveloped)
+            # ref_prop = xmlsig.template.add_reference(
+            #     signature, xmlsig.constants.TransformSha256, uri_type="http://uri.etsi.org/01903#SignedProperties", uri="#" + signature_id
+            # )
+            # xmlsig.template.add_transform(ref_prop, xmlsig.constants.TransformInclC14N)
+            # ki = xmlsig.template.ensure_key_info(signature)
+            # data = xmlsig.template.add_x509_data(ki)
+            # xmlsig.template.x509_data_add_certificate(data)
+            # xmlsig.template.x509_data_add_subject_name(data)
+            # serial = xmlsig.template.x509_data_add_issuer_serial(data)
+            # xmlsig.template.x509_issuer_serial_add_issuer_name(serial)
+            # xmlsig.template.x509_issuer_serial_add_serial_number(serial)
+            # qualifying = template.create_qualifying_properties(
+            #     signature, name=utils.get_unique_id()
+            # )
+            # props = template.create_signed_properties(
+            #     qualifying, name=signature_id, datetime=fecha_hora
+            # )
+            #
+            # GTDocumento.append(signature)
+            # ctx = XAdESContext()
+            # with open(path.join("/home/odoo/megaprint_leplan", "51043491-6747a80bb6a554ae.pfx"), "rb") as key_file:
+            #     ctx.load_pkcs12(crypto.load_pkcs12(key_file.read(), "Planeta123$"))
+            # ctx.sign(signature)
+            # ctx.verify(signature)
+            # DatosEmision.remove(SingatureTemp)
+
+            # xml_con_firma = etree.tostring(GTDocumento, encoding="utf-8").decode("utf-8")
                     
             return GTDocumento
 
@@ -282,24 +322,22 @@ class AccountInvoice(models.Model):
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
                 nit_receptor = factura.partner_id.cui
 
-            fecha = fields.Date.from_string(factura.date_invoice).strftime('%Y-%m-%d')
-            hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%H:%M:%S')
+            fecha = fields.Date.from_string(factura.invoice_date).strftime('%Y-%m-%d')
+            hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
             
-            fecha_hoy = fields.Date.context_today(factura).strftime('%Y-%m-%d')
-            fecha_hoy_hora = fecha_hoy+'T'+hora
+            fecha_hoy_hora = fields.Date.context_today(factura).strftime('%Y-%m-%dT%H:%M:%S')
 
             GTAnulacionDocumento = etree.Element(DTE_NS+"GTAnulacionDocumento", {}, Version="0.1", nsmap=NSMAP)
             SAT = etree.SubElement(GTAnulacionDocumento, DTE_NS+"SAT")
             AnulacionDTE = etree.SubElement(SAT, DTE_NS+"AnulacionDTE", ID="DatosCertificados")
-            DatosGenerales = etree.SubElement(AnulacionDTE, DTE_NS+"DatosGenerales", ID="DatosAnulacion", NumeroDocumentoAAnular=factura.firma_fel, NITEmisor=factura.company_id.vat.replace("-",""), IDReceptor=nit_receptor, FechaEmisionDocumentoAnular=fecha_hora, FechaHoraAnulacion=fecha_hoy_hora, MotivoAnulacion=factura.comment or "Error")
+            DatosGenerales = etree.SubElement(AnulacionDTE, DTE_NS+"DatosGenerales", ID="DatosAnulacion", NumeroDocumentoAAnular=factura.firma_fel, NITEmisor=factura.company_id.vat.replace("-",""), IDReceptor=nit_receptor, FechaEmisionDocumentoAnular=fecha_hora, FechaHoraAnulacion=fecha_hoy_hora, MotivoAnulacion=factura.narration or "Error")
             
             return GTAnulacionDocumento
 
 class AccountJournal(models.Model):
     _inherit = "account.journal"
 
-    codigo_establecimiento_fel = fields.Char('Codigo Establecimiento FEL', copy=False)
     tipo_documento_fel = fields.Selection([('FACT', 'FACT'), ('FCAM', 'FCAM'), ('FPEQ', 'FPEQ'), ('FCAP', 'FCAP'), ('FESP', 'FESP'), ('NABN', 'NABN'), ('RDON', 'RDON'), ('RECI', 'RECI'), ('NDEB', 'NDEB'), ('NCRE', 'NCRE')], 'Tipo de Documento FEL', copy=False)
 
 class ResCompany(models.Model):
