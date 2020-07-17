@@ -243,7 +243,7 @@ class AccountInvoice(models.Model):
                     total_isr = abs(factura.amount_tax)
 
                     total_iva_retencion = 0
-                    for impuesto in factura.amount_by_group:
+                    for impuesto in factura._get_tax_amount_by_group():
                         if impuesto[1] > 0:
                             total_iva_retencion += impuesto[1]
 
