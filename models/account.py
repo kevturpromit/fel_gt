@@ -78,6 +78,7 @@ class AccountInvoice(models.Model):
                 moneda = "USD"
 
             fecha = fields.Date.from_string(factura.date_invoice).strftime('%Y-%m-%d')
+            hora = "00:00:00-06:00"
             hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%H:%M:%S')
             fecha_hora = fecha+'T'+hora
             DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
@@ -283,11 +284,10 @@ class AccountInvoice(models.Model):
                 nit_receptor = factura.partner_id.cui
 
             fecha = fields.Date.from_string(factura.date_invoice).strftime('%Y-%m-%d')
-            hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%H:%M:%S')
+            hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
             
-            fecha_hoy = fields.Date.context_today(factura).strftime('%Y-%m-%d')
-            fecha_hoy_hora = fecha_hoy+'T'+hora
+            fecha_hoy_hora = fields.Date.context_today(factura).strftime('%Y-%m-%dT%H:%M:%S')
 
             GTAnulacionDocumento = etree.Element(DTE_NS+"GTAnulacionDocumento", {}, Version="0.1", nsmap=NSMAP)
             SAT = etree.SubElement(GTAnulacionDocumento, DTE_NS+"SAT")
