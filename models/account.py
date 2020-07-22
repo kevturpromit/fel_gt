@@ -9,7 +9,6 @@ import base64
 from lxml import etree
 import requests
 import re
-from xml.sax.saxutils import escape
 
 #from OpenSSL import crypto
 #import xmlsig
@@ -84,7 +83,6 @@ class AccountMove(models.Model):
             fecha = factura.invoice_date.strftime('%Y-%m-%d')
             hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
-            
             DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
             if factura.tipo_gasto == 'importacion':
                 DatosGenerales.attrib['Exp'] = "SI"
@@ -107,9 +105,9 @@ class AccountMove(models.Model):
                 nit_receptor = factura.partner_id.vat.replace('-','')
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
                 nit_receptor = factura.partner_id.cui
-            Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=escape(factura.partner_id.name))
+            Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name)
             if factura.partner_id.nombre_facturacion_fel:
-                Receptor.attrib['NombreReceptor'] = escape(factura.partner_id.nombre_facturacion_fel)
+                Receptor.attrib['NombreReceptor'] = factura.partner_id.nombre_facturacion_fel
             if factura.partner_id.email:
                 Receptor.attrib['CorreoReceptor'] = factura.partner_id.email
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
@@ -165,7 +163,7 @@ class AccountMove(models.Model):
                 UnidadMedida = etree.SubElement(Item, DTE_NS+"UnidadMedida")
                 UnidadMedida.text = "UNI"
                 Descripcion = etree.SubElement(Item, DTE_NS+"Descripcion")
-                Descripcion.text = escape(linea.name)
+                Descripcion.text = linea.name
                 PrecioUnitario = etree.SubElement(Item, DTE_NS+"PrecioUnitario")
                 PrecioUnitario.text = '{:.6f}'.format(precio_sin_descuento)
                 Precio = etree.SubElement(Item, DTE_NS+"Precio")
@@ -324,11 +322,11 @@ class AccountMove(models.Model):
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
                 nit_receptor = factura.partner_id.cui
 
-            fecha = factura.invoice_date.strftime('%Y-%m-%d')
+            fecha = fields.Date.from_string(factura.invoice_date).strftime('%Y-%m-%d')
             hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
             
-            fecha_hoy_hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%Y-%m-%dT%H:%M:%S-06:00')
+            fecha_hoy_hora = fields.Date.context_today(factura).strftime('%Y-%m-%dT%H:%M:%S')
 
             GTAnulacionDocumento = etree.Element(DTE_NS+"GTAnulacionDocumento", {}, Version="0.1", nsmap=NSMAP)
             SAT = etree.SubElement(GTAnulacionDocumento, DTE_NS+"SAT")
