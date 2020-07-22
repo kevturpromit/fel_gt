@@ -84,6 +84,7 @@ class AccountMove(models.Model):
             fecha = factura.invoice_date.strftime('%Y-%m-%d')
             hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
+            
             DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
             if factura.tipo_gasto == 'importacion':
                 DatosGenerales.attrib['Exp'] = "SI"
@@ -323,11 +324,11 @@ class AccountMove(models.Model):
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
                 nit_receptor = factura.partner_id.cui
 
-            fecha = fields.Date.from_string(factura.invoice_date).strftime('%Y-%m-%d')
+            fecha = factura.invoice_date.strftime('%Y-%m-%d')
             hora = "00:00:00-06:00"
             fecha_hora = fecha+'T'+hora
             
-            fecha_hoy_hora = fields.Date.context_today(factura).strftime('%Y-%m-%dT%H:%M:%S')
+            fecha_hoy_hora = fields.Datetime.context_timestamp(factura, timestamp=datetime.now()).strftime('%Y-%m-%dT%H:%M:%S-06:00')
 
             GTAnulacionDocumento = etree.Element(DTE_NS+"GTAnulacionDocumento", {}, Version="0.1", nsmap=NSMAP)
             SAT = etree.SubElement(GTAnulacionDocumento, DTE_NS+"SAT")
