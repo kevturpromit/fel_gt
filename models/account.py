@@ -9,8 +9,7 @@ import base64
 from lxml import etree
 import requests
 import re
-
-#from import XMLSigner
+from xml.sax.saxutils import escape
 
 import logging
 
@@ -103,9 +102,9 @@ class AccountInvoice(models.Model):
                 nit_receptor = factura.partner_id.vat.replace('-','')
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
                 nit_receptor = factura.partner_id.cui
-            Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name)
+            Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=escape(factura.partner_id.name)
             if factura.partner_id.nombre_facturacion_fel:
-                Receptor.attrib['NombreReceptor'] = factura.partner_id.nombre_facturacion_fel
+                Receptor.attrib['NombreReceptor'] = escape(factura.partner_id.nombre_facturacion_fel)
             if factura.partner_id.email:
                 Receptor.attrib['CorreoReceptor'] = factura.partner_id.email
             if tipo_documento_fel == "FESP" and factura.partner_id.cui:
@@ -162,7 +161,7 @@ class AccountInvoice(models.Model):
                 UnidadMedida = etree.SubElement(Item, DTE_NS+"UnidadMedida")
                 UnidadMedida.text = "UNI"
                 Descripcion = etree.SubElement(Item, DTE_NS+"Descripcion")
-                Descripcion.text = linea.name
+                Descripcion.text = escape(linea.name)
                 PrecioUnitario = etree.SubElement(Item, DTE_NS+"PrecioUnitario")
                 PrecioUnitario.text = '{:.6f}'.format(precio_sin_descuento)
                 Precio = etree.SubElement(Item, DTE_NS+"Precio")
