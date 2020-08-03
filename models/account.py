@@ -243,8 +243,9 @@ class AccountInvoice(models.Model):
                 if tipo_documento_fel in ['FESP']:
                     total_isr = abs(factura.amount_tax)
 
+                    impuestos = factura.amount_by_group if 'amount_by_group' in factura.fields_get() else factura._get_tax_amount_by_group()
                     total_iva_retencion = 0
-                    for impuesto in factura._get_tax_amount_by_group():
+                    for impuesto in impuestos:
                         if impuesto[1] > 0:
                             total_iva_retencion += impuesto[1]
 
