@@ -161,7 +161,7 @@ class AccountMove(models.Model):
                 Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
                 Cantidad.text = str(linea.quantity)
                 UnidadMedida = etree.SubElement(Item, DTE_NS+"UnidadMedida")
-                UnidadMedida.text = "UNI"
+                UnidadMedida.text = linea.uom_id.name[0:3]
                 Descripcion = etree.SubElement(Item, DTE_NS+"Descripcion")
                 Descripcion.text = linea.name
                 PrecioUnitario = etree.SubElement(Item, DTE_NS+"PrecioUnitario")
