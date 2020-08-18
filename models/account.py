@@ -32,7 +32,7 @@ class AccountMove(models.Model):
     documento_xml_fel_name = fields.Char('Nombre doc xml FEL', default='documento_xml_fel.xml', size=32)
     resultado_xml_fel = fields.Binary('Resultado xml FEL', copy=False)
     resultado_xml_fel_name = fields.Char('Resultado doc xml FEL', default='resultado_xml_fel.xml', size=32)
-    certificador_fel = fields.Char('Certificador FEL', related='account_move.certificador_fel')
+    certificador_fel = fields.Char('Certificador FEL')
 
     def dte_documento(self):
         self.ensure_one()
