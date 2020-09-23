@@ -230,10 +230,14 @@ class AccountInvoice(models.Model):
                     NombreConsignatarioODestinatario.text = factura.consignatario_fel.name if factura.consignatario_fel else "-"
                     DireccionConsignatarioODestinatario = etree.SubElement(Exportacion, CEX_NS+"DireccionConsignatarioODestinatario")
                     DireccionConsignatarioODestinatario.text = factura.consignatario_fel.street or "-" if factura.consignatario_fel else "-"
+                    CodigoConsignatarioODestinatario = etree.SubElement(Exportacion, CEX_NS+"CodigoConsignatarioODestinatario")
+                    CodigoConsignatarioODestinatario.text = factura.consignatario_fel.ref or "-" if factura.consignatario_fel else "-"
                     NombreComprador = etree.SubElement(Exportacion, CEX_NS+"NombreComprador")
                     NombreComprador.text = factura.comprador_fel.name if factura.comprador_fel else "-"
                     DireccionComprador = etree.SubElement(Exportacion, CEX_NS+"DireccionComprador")
                     DireccionComprador.text = factura.comprador_fel.street or "-" if factura.comprador_fel else "-"
+                    CodigoComprador = etree.SubElement(Exportacion, CEX_NS+"CodigoComprador")
+                    CodigoComprador.text = factura.comprador_fel.ref or "-" if factura.comprador_fel else "-"
                     INCOTERM = etree.SubElement(Exportacion, CEX_NS+"INCOTERM")
                     INCOTERM.text = factura.incoterm_fel or "-"
                     NombreExportador = etree.SubElement(Exportacion, CEX_NS+"NombreExportador")
