@@ -219,7 +219,7 @@ class AccountInvoice(models.Model):
                     NumeroAbono = etree.SubElement(Abono, CFC_NS+"NumeroAbono")
                     NumeroAbono.text = "1"
                     FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
-                    FechaVencimiento.text = str(fields.Date.from_string(factura.date_due).strftime('%d/%m/%Y'))
+                    FechaVencimiento.text = str(factura.date_due)
                     MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
                     MontoAbono.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
 
