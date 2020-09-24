@@ -3,7 +3,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
-from odoo.tools.misc import format_date
 
 from datetime import datetime
 import base64
@@ -221,7 +220,7 @@ class AccountMove(models.Model):
                     NumeroAbono = etree.SubElement(Abono, CFC_NS+"NumeroAbono")
                     NumeroAbono.text = "1"
                     FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
-                    FechaVencimiento.text = format_date(self.env, factura.date_due)
+                    FFechaVencimiento.text = str(factura.date_due)
                     MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
                     MontoAbono.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
 
