@@ -54,6 +54,24 @@ class AccountMove(models.Model):
             return True
 
         return False
+    def descuento_lineas(self,factura,invoice_line_ids):
+        precio_total_descuento = 0
+        precio_total_positivo = 0
+
+        for linea in invoice_line_ids:
+            if linea.price_unit > 0:
+                precio_total_positivo += linea.price_total
+            elif linea.price_unit < 0:
+                precio_total_descuento += linea.price_total
+                linea.price_unit = 0
+
+        posicion = 0
+        for linea in invoice_line_ids:
+            if invoice_line_ids[posicion].price_unit > 0:
+                descuento = ((precio_total_descuento / precio_total_positivo)*100)*-1
+                factura.write({ 'invoice_line_ids': [[1, factura.invoice_line_ids[posicion].id, { 'discount': descuento }]] })
+            posicion += 1
+        return True
 
     def dte_documento(self):
         self.ensure_one()
