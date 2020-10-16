@@ -54,6 +54,7 @@ class AccountMove(models.Model):
             return True
 
         return False
+
     def descuento_lineas(self,factura,invoice_line_ids):
         precio_total_descuento = 0
         precio_total_positivo = 0
