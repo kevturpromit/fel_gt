@@ -3,7 +3,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
-
+from odoo.release import version_info
 from datetime import datetime
 import base64
 from lxml import etree
@@ -174,7 +174,8 @@ class AccountInvoice(models.Model):
         gran_total = 0
         gran_total_impuestos = 0
         cantidad_impuestos = 0
-        self.descuento_lineas(factura.invoice_line_ids)
+        if version_info[0] > 10:
+            self.descuento_lineas(factura.invoice_line_ids)
 
         for linea in factura.invoice_line_ids:
 
