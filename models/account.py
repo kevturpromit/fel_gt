@@ -235,8 +235,8 @@ class AccountInvoice(models.Model):
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
 
-        if ElementoFrases and gran_total_impuestos == 0:
-            Frase = etree.SubElement(ElementoFrases, DTE_NS+"Frase", CodigoEscenario="1", TipoFrase="4")
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and gran_total_impuestos == 0:
+            Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario="1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
             Adenda = etree.SubElement(SAT, DTE_NS+"Adenda")
