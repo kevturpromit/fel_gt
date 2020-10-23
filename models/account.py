@@ -25,11 +25,12 @@ class AccountInvoice(models.Model):
     comprador_fel = fields.Many2one('res.partner', string="Comprador FEL")
     exportador_fel = fields.Many2one('res.partner', string="Exportador FEL")
     incoterm_fel = fields.Char(string="Incoterm FEL")
+    frase_exento_fel = fields.Integer('Fase Exento FEL')
     documento_xml_fel = fields.Binary('Documento xml FEL', copy=False)
     documento_xml_fel_name = fields.Char('Nombre doc xml FEL', default='documento_xml_fel.xml', size=32)
     resultado_xml_fel = fields.Binary('Resultado xml FEL', copy=False)
     resultado_xml_fel_name = fields.Char('Resultado doc xml FEL', default='resultado_xml_fel.xml', size=32)
-    certificador_fel = fields.Char('Certificador FEL')
+    certificador_fel = fields.Char('Certificador FEL', copy=False)
 
     def error_certificador(self, error):
         self.ensure_one()
@@ -237,7 +238,7 @@ class AccountInvoice(models.Model):
         GranTotal.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
 
         if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and gran_total_impuestos == 0:
-            Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario="1", TipoFrase="4")
+            Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
             Adenda = etree.SubElement(SAT, DTE_NS+"Adenda")
