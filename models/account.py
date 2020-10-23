@@ -167,8 +167,6 @@ class AccountMove(models.Model):
 
         if tipo_documento_fel not in ['NDEB', 'NCRE', 'RECI', 'NABN', 'FESP']:
             ElementoFrases = etree.fromstring(factura.company_id.frases_fel)
-            if factura.tipo_gasto == 'importacion':
-                Frase = etree.SubElement(ElementoFrases, DTE_NS+"Frase", CodigoEscenario="1", TipoFrase="4")
             DatosEmision.append(ElementoFrases)
 
         Items = etree.SubElement(DatosEmision, DTE_NS+"Items")
@@ -217,7 +215,7 @@ class AccountMove(models.Model):
                 NombreCorto.text = "IVA"
                 CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
                 CodigoUnidadGravable.text = "1"
-                if factura.tipo_gasto == 'importacion' or ( tipo_documento_fel in ['NDEB', 'NCRE'] and factura.factura_original_id and factura.factura_original_id.tipo_gasto == 'importacion' ):
+                if total_impuestos == 0:
                     CodigoUnidadGravable.text = "2"
                 MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
@@ -236,6 +234,9 @@ class AccountMove(models.Model):
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.2f}'.format(factura.currency_id.round(gran_total_impuestos)))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
+
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and gran_total_impuestos == 0:
+            Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario="1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
             Adenda = etree.SubElement(SAT, DTE_NS+"Adenda")
