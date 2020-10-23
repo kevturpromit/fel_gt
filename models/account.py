@@ -3,7 +3,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
+from odoo.tools import float_is_zero, float_compare
 from odoo.release import version_info
+
 from datetime import datetime
 import base64
 from lxml import etree
@@ -217,7 +219,7 @@ class AccountInvoice(models.Model):
                 NombreCorto.text = "IVA"
                 CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
                 CodigoUnidadGravable.text = "1"
-                if total_impuestos == 0:
+                if float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
                     CodigoUnidadGravable.text = "2"
                 MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                 MontoGravable.text = '{:.2f}'.format(factura.currency_id.round(total_linea_base))
@@ -237,7 +239,7 @@ class AccountInvoice(models.Model):
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
 
-        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and gran_total_impuestos == 0:
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
