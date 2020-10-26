@@ -26,6 +26,7 @@
                     </field>
                     <field name="tipo_gasto" position="after">
                         <field name="frase_exento_fel"/>
+                        <field name="motivo_fel"/>
                         <field name="consignatario_fel" attrs="{'invisible': [('tipo_gasto','!=','importacion')]}"/>
                         <field name="comprador_fel" attrs="{'invisible': [('tipo_gasto','!=','importacion')]}"/>
                         <field name="exportador_fel" attrs="{'invisible': [('tipo_gasto','!=','importacion')]}"/>
