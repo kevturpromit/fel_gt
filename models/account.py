@@ -64,21 +64,17 @@ class AccountMove(models.Model):
         precio_total_descuento = 0
         precio_total_positivo = 0
 
-        posicion = 0
         for linea in factura.invoice_line_ids:
             if linea.price_unit > 0:
                 precio_total_positivo += linea.price_total
             elif linea.price_unit < 0:
                 precio_total_descuento += linea.price_total
-                factura.write({ 'invoice_line_ids': [[1, factura.invoice_line_ids[posicion].id, { 'price_unit': 0 }]] })
-            posicion += 1
+                factura.write({ 'invoice_line_ids': [[1, linea.id, { 'price_unit': 0 }]] })
 
-        posicion = 0
         for linea in factura.invoice_line_ids:
-            if factura.invoice_line_ids[posicion].price_unit > 0:
+            if linea.price_unit > 0:
                 descuento = ((precio_total_descuento / precio_total_positivo) * 100) * -1
-                factura.write({ 'invoice_line_ids': [[1, factura.invoice_line_ids[posicion].id, { 'discount': descuento }]] })
-            posicion += 1
+                factura.write({ 'invoice_line_ids': [[1, linea.id, { 'discount': descuento }]] })
         return True
 
     def dte_documento(self):
@@ -224,7 +220,7 @@ class AccountMove(models.Model):
                 NombreCorto.text = "IVA"
                 CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
                 CodigoUnidadGravable.text = "1"
-                if factura.currency_id.is_zero(total_impuestos)
+                if factura.currency_id.is_zero(total_impuestos):
                     CodigoUnidadGravable.text = "2"
                 MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
