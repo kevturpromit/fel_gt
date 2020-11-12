@@ -142,7 +142,7 @@ class AccountMove(models.Model):
         if factura.tipo_gasto == 'importacion':
             DatosGenerales.attrib['Exp'] = "SI"
 
-        Emisor = etree.SubElement(DatosEmision, DTE_NS+"Emisor", AfiliacionIVA="GEN", CodigoEstablecimiento=str(factura.journal_id.codigo_establecimiento), CorreoEmisor=factura.company_id.email or '', NITEmisor=factura.company_id.vat.replace('-',''), NombreComercial=factura.journal_id.direccion.name, NombreEmisor=factura.company_id.name)
+        Emisor = etree.SubElement(DatosEmision, DTE_NS+"Emisor", AfiliacionIVA=factura.company_id.afiliacion_iva_fel or "GEN", CodigoEstablecimiento=str(factura.journal_id.codigo_establecimiento), CorreoEmisor=factura.company_id.email or '', NITEmisor=factura.company_id.vat.replace('-',''), NombreComercial=factura.journal_id.direccion.name, NombreEmisor=factura.company_id.name)
         DireccionEmisor = etree.SubElement(Emisor, DTE_NS+"DireccionEmisor")
         Direccion = etree.SubElement(DireccionEmisor, DTE_NS+"Direccion")
         Direccion.text = factura.journal_id.direccion.street or 'Ciudad'
@@ -405,5 +405,6 @@ class AccountJournal(models.Model):
 class ResCompany(models.Model):
     _inherit = "res.company"
 
+    afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')

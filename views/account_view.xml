@@ -59,8 +59,9 @@
                 <data>
                     <notebook position="inside">
                         <page string="FEL">
-                            <group string="Frases y Adenda">
+                            <group string="Configuración general">
                                 <group>
+                                    <field name="afiliacion_iva_fel"/>
                                     <field name="frases_fel"/>
                                     <field name="adenda_fel"/>
                                 </group>
