@@ -71,16 +71,16 @@ class AccountMove(models.Model):
             descr[linea.id] = linea.name
         
         for linea in factura.invoice_line_ids:
-            if linea.price_unit > 0:
+            if linea.price_total > 0:
                 precio_total_positivo += linea.price_total
-            elif linea.price_unit < 0:
-                precio_total_descuento += linea.price_total
+            elif linea.price_total < 0:
+                precio_total_descuento += abs(linea.price_total)
                 factura.write({ 'invoice_line_ids': [[1, linea.id, { 'price_unit': 0 }]] })
                 
-        if precio_total_descuento < 0:
+        if precio_total_descuento > 0:
             for linea in factura.invoice_line_ids:
                 if linea.price_unit > 0:
-                    descuento = ((precio_total_descuento / precio_total_positivo) * 100) * -1
+                    descuento = (precio_total_descuento / precio_total_positivo) * 100
                     name = linea.name
                     factura.write({ 'invoice_line_ids': [[1, linea.id, { 'discount': descuento }]] })
                     
@@ -135,7 +135,7 @@ class AccountMove(models.Model):
         if factura.currency_id.id != factura.company_id.currency_id.id:
             moneda = "USD"
 
-        fecha = factura.invoice_date.strftime('%Y-%m-%d')
+        fecha = factura.invoice_date.strftime('%Y-%m-%d') if factura.invoice_date else fields.Date.context_today(self).strftime('%Y-%m-%d')
         hora = "00:00:00-06:00"
         fecha_hora = fecha+'T'+hora
         DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
