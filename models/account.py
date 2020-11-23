@@ -63,15 +63,15 @@ class AccountInvoice(models.Model):
         precio_total_positivo = 0
 
         for linea in invoice_line_ids:
-            if linea.price_unit > 0:
+            if linea.price_total > 0:
                 lineas_positivas.append(linea)
                 precio_total_positivo += linea.price_total
-            elif linea.price_unit < 0:
-                precio_total_descuento += linea.price_total
+            elif linea.price_total < 0:
+                precio_total_descuento += abs(linea.price_total)
                 linea.price_unit = 0
 
         for linea in lineas_positivas:
-            linea.discount = ((precio_total_descuento / precio_total_positivo)*100)*-1
+            linea.discount = (precio_total_descuento / precio_total_positivo) * 100
         return True
 
     def dte_documento(self):
