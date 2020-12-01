@@ -277,9 +277,9 @@ class AccountMove(models.Model):
                 NumeroAbono = etree.SubElement(Abono, CFC_NS+"NumeroAbono")
                 NumeroAbono.text = "1"
                 FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
-                FFechaVencimiento.text = str(factura.date_due)
+                FFechaVencimiento.text = str(factura.invoice_date_due)
                 MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
-                MontoAbono.text = '{:.2f}'.format(factura.currency_id.round(gran_total))
+                MontoAbono.text = '{:.2f}'.format(gran_total)
 
             if tipo_documento_fel in ['FACT', 'FCAM'] and factura.tipo_gasto == 'importacion':
                 Complemento = etree.SubElement(Complementos, DTE_NS+"Complemento", IDComplemento="text", NombreComplemento="text", URIComplemento="http://www.sat.gob.gt/face2/ComplementoExportaciones/0.1.0")
