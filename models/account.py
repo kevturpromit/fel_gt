@@ -277,7 +277,7 @@ class AccountMove(models.Model):
                 NumeroAbono = etree.SubElement(Abono, CFC_NS+"NumeroAbono")
                 NumeroAbono.text = "1"
                 FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
-                FFechaVencimiento.text = str(factura.invoice_date_due)
+                FechaVencimiento.text = str(factura.invoice_date_due)
                 MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
                 MontoAbono.text = '{:.2f}'.format(gran_total)
 
