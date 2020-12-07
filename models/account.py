@@ -183,7 +183,7 @@ class AccountInvoice(models.Model):
 
         for linea in factura.invoice_line_ids:
 
-            if linea.quantity * linea.price_unit == 0:
+            if linea.price_total == 0:
                 continue
 
             linea_num += 1
