@@ -7,10 +7,11 @@
     'description': """ Campos y funciones base para la facturación electrónica en Guatemala """,
     'author': 'Rodrigo Fernandez',
     'website': 'http://aquih.com/',
-    'depends': ['l10n_gt_extra'],
+    'depends': ['l10n_gt_extra','account'],
     'data': [
         'views/account_view.xml',
         'views/partner_view.xml',
+        'views/report_invoice.xml',
     ],
     'demo': [],
     'installable': True
