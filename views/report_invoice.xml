@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="fel_report_invoice_document" inherit_id="account.report_invoice_document">
+            
+            <xpath expr="//div[@id='total']" position="after">
+                <p>
+                    Número de Autorización: <span t-field="o.firma_fel"/>
+                    <br/>Serie Fel: <span t-field="o.serie_fel"/>
+                    <br/>Número Fel: <span t-field="o.numero_fel"/>
+                    <br/>Certificador: <span t-field="o.certificador_fel"/>
+                </p>
+            </xpath>
+        </template>
+        
+    </data>
+</odoo>
