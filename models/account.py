@@ -223,11 +223,11 @@ class AccountInvoice(models.Model):
                 if float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
                     CodigoUnidadGravable.text = "2"
                 MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
-                MontoGravable.text = '{:.6f}'.format(factura.currency_id.round(total_linea_base))
+                MontoGravable.text = '{:.3f}'.format(factura.currency_id.round(total_linea_base))
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
-                MontoImpuesto.text = '{:.6f}'.format(factura.currency_id.round(total_impuestos))
+                MontoImpuesto.text = '{:.3f}'.format(factura.currency_id.round(total_impuestos))
             Total = etree.SubElement(Item, DTE_NS+"Total")
-            Total.text = '{:.6f}'.format(factura.currency_id.round(total_linea))
+            Total.text = '{:.3f}'.format(factura.currency_id.round(total_linea))
 
             gran_total += factura.currency_id.round(total_linea)
             gran_subtotal += factura.currency_id.round(total_linea_base)
@@ -236,11 +236,11 @@ class AccountInvoice(models.Model):
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         if cantidad_impuestos > 0:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(factura.currency_id.round(gran_total_impuestos)))
+            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
-        GranTotal.text = '{:.6f}'.format(factura.currency_id.round(gran_total))
+        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
-        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and float_is_zero(gran_total_impuestos, precision_rounding=factura.currency_id.rounding):
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
@@ -267,7 +267,7 @@ class AccountInvoice(models.Model):
                 FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
                 FechaVencimiento.text = str(factura.date_due)
                 MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
-                MontoAbono.text = '{:.6f}'.format(factura.currency_id.round(gran_total))
+                MontoAbono.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
             if tipo_documento_fel in ['FACT', 'FCAM'] and factura.tipo_gasto == 'importacion':
                 Complemento = etree.SubElement(Complementos, DTE_NS+"Complemento", IDComplemento="Exportacion", NombreComplemento="Exportacion", URIComplemento="http://www.sat.gob.gt/face2/ComplementoExportaciones/0.1.0")
