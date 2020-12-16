@@ -190,6 +190,7 @@ class AccountMove(models.Model):
         gran_subtotal = 0
         gran_total = 0
         gran_total_impuestos = 0
+        gran_total_impuestos_isd = 0
         cantidad_impuestos = 0
         self.descuento_lineas()
         
@@ -211,6 +212,7 @@ class AccountMove(models.Model):
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
             cantidad_impuestos += len(linea.tax_ids)
+            total_impuestos_isd = linea.product_id.x_studio_precio_sugerido*linea.product_id.x_tarifa_aplicable
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
             Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
@@ -238,17 +240,34 @@ class AccountMove(models.Model):
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                 MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
+                if linea.product_id.x_studio_precio_sugerido > 0:
+                    Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
+                    NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
+                    NombreCorto.text = "BEBIDAS ALCOHOLICAS"
+                    CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
+                    CodigoUnidadGravable.text = "2"
+                    MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
+                    MontoGravable.text = '{:.6f}'.format(linea.product_id.x_studio_precio_sugerido)
+                    CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
+                    CantidadUnidadesGravables.text = str(linea.quantity)
+                    MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+                    MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(total_linea)
 
             gran_total += factura.currency_id.round(total_linea)
             gran_subtotal += factura.currency_id.round(total_linea_base)
             gran_total_impuestos += factura.currency_id.round(total_impuestos)
+            gran_total_impuestos_isd += factura.currency_id.round(total_impuestos_isd)
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         if cantidad_impuestos > 0:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+            if gran_total_impuestos_ids > 0:
+                TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
+                TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS ALCOHOLICAS", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos_isd)))
+
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
