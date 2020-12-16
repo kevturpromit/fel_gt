@@ -201,18 +201,20 @@ class AccountMove(models.Model):
 
             linea_num += 1
 
+            total_impuestos_isd_unitario = linea.product_id.x_studio_precio_sugerido*linea.product_id.x_studio_tarifa_aplicable/100
+
             tipo_producto = "B"
             if linea.product_id.type == 'service':
                 tipo_producto = "S"
-            precio_unitario = linea.price_unit * (100-linea.discount) / 100
-            precio_sin_descuento = linea.price_unit
-            descuento = precio_sin_descuento * linea.quantity - precio_unitario * linea.quantity
+            precio_unitario = (linea.price_unit - total_impuestos_isd_unitario) * (100-linea.discount) / 100
+            precio_sin_descuento = linea.price_unit - total_impuestos_isd_unitario
+            descuento = (precio_sin_descuento * linea.quantity) - (precio_unitario * linea.quantity)
             precio_unitario_base = linea.price_subtotal / linea.quantity
             total_linea = precio_unitario * linea.quantity
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
+            total_impuestos_isd = total_impuestos_isd_unitario * linea.quantity
             cantidad_impuestos += len(linea.tax_ids)
-            total_impuestos_isd = linea.product_id.x_studio_precio_sugerido*linea.product_id.x_tarifa_aplicable/100
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
             Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
@@ -253,7 +255,7 @@ class AccountMove(models.Model):
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
             Total = etree.SubElement(Item, DTE_NS+"Total")
-            Total.text = '{:.3f}'.format(total_linea)
+            Total.text = '{:.3f}'.format(total_linea+total_impuestos_isd)
 
             gran_total += factura.currency_id.round(total_linea)
             gran_subtotal += factura.currency_id.round(total_linea_base)
@@ -264,12 +266,12 @@ class AccountMove(models.Model):
         if cantidad_impuestos > 0:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
-            if gran_total_impuestos_ids > 0:
+            if gran_total_impuestos_isd > 0:
                 TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
                 TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS ALCOHOLICAS", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos_isd)))
 
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
-        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
+        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total+gran_total_impuestos_isd))
 
         if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
@@ -427,3 +429,4 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
+
