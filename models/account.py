@@ -212,7 +212,7 @@ class AccountMove(models.Model):
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
             cantidad_impuestos += len(linea.tax_ids)
-            total_impuestos_isd = linea.product_id.x_studio_precio_sugerido*linea.product_id.x_tarifa_aplicable
+            total_impuestos_isd = linea.product_id.x_studio_precio_sugerido*linea.product_id.x_tarifa_aplicable/100
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
             Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
