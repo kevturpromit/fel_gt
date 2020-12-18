@@ -72,7 +72,7 @@ class AccountMove(models.Model):
         
         for linea in factura.invoice_line_ids:
             if linea.price_total > 0:
-                precio_total_positivo += linea.price_total
+                precio_total_positivo += linea.price_unit * linea.quantity
             elif linea.price_total < 0:
                 precio_total_descuento += abs(linea.price_total)
                 factura.write({ 'invoice_line_ids': [[1, linea.id, { 'price_unit': 0 }]] })
@@ -80,7 +80,7 @@ class AccountMove(models.Model):
         if precio_total_descuento > 0:
             for linea in factura.invoice_line_ids:
                 if linea.price_unit > 0:
-                    descuento = (precio_total_descuento / precio_total_positivo) * 100
+                    descuento = (precio_total_descuento / precio_total_positivo) * 100 + linea.discount
                     name = linea.name
                     factura.write({ 'invoice_line_ids': [[1, linea.id, { 'discount': descuento }]] })
                     
@@ -138,7 +138,7 @@ class AccountMove(models.Model):
         fecha = factura.invoice_date.strftime('%Y-%m-%d') if factura.invoice_date else fields.Date.context_today(self).strftime('%Y-%m-%d')
         hora = "00:00:00-06:00"
         fecha_hora = fecha+'T'+hora
-        DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
+        DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel, NumeroAcceso=str(factura.id+100000000))
         if factura.tipo_gasto == 'importacion':
             DatosGenerales.attrib['Exp'] = "SI"
 
@@ -401,7 +401,8 @@ class AccountJournal(models.Model):
     generar_fel = fields.Boolean('Generar FEL')
     tipo_documento_fel = fields.Selection([('FACT', 'FACT'), ('FCAM', 'FCAM'), ('FPEQ', 'FPEQ'), ('FCAP', 'FCAP'), ('FESP', 'FESP'), ('NABN', 'NABN'), ('RDON', 'RDON'), ('RECI', 'RECI'), ('NDEB', 'NDEB'), ('NCRE', 'NCRE')], 'Tipo de Documento FEL', copy=False)
     error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en patalla, solo se registran en el historial')
-
+    contingencia_fel = fields.Boolean('Habilitar contingencia FEL')
+    
 class ResCompany(models.Model):
     _inherit = "res.company"
 

@@ -46,6 +46,7 @@
                         <field name="generar_fel"/>
                         <field name="tipo_documento_fel"/>
                         <field name="error_en_historial_fel"/>
+                        <field name="contingencia_fel"/>
                     </field>
                 </data>
             </field>
