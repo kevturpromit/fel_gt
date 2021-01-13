@@ -1,13 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
+        
+        <template id="inherit_external_layout_header" inherit_id="web.external_layout_standard">
+            <xpath expr="//div[@class='header']/div[3]/div" position="inside">
+                <div>
+                    <ul class="list-inline mb4" style="font-size: 90%;">
+                        <li t-if="company.phone" class="list-inline-item">Phone: <span t-field="company.phone"/></li>
+                        <li t-if="company.vat" class="list-inline-item"> NIT: <span t-esc="company.vat.replace(' ','\N{NO-BREAK SPACE}')"/></li>
+                    </ul>
+                </div>
+            </xpath>
+            
+            <xpath expr="//div[@class='footer o_standard_footer']/div/ul" position="replace">
+            </xpath>
+        </template>
 
         <template id="fel_report_invoice_document" inherit_id="account.report_invoice_document">
+
+            <xpath expr="/t/t/t/address" position="replace">
+                <br/>
+                <address style="font-size: 90%;" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name","phone"], "no_marker": True}' />
+            </xpath>
+            
+            <xpath expr="/t/t/t/div" position="replace">
+                <div t-if="o.partner_id.vat" class="mt16" style="font-size: 95%;">NIT: <span t-field="o.partner_id.vat"/></div>
+                <div t-if="o.journal_id.tipo_documento_fel == 'FESP' and not o.partner_id.vat and o.partner_id.cui" class="mt16" style="font-size: 95%;">CUI: <span t-field="o.partner_id.cui"/></div>
+                <br/>
+            </xpath>
+            
+            <xpath t-if="o.journal_id.tipo_documento_fel == 'FESP'" expr="//div[@id='total']/div/table/t" position="replace">
+                <t t-if="o.journal_id.tipo_documento_fel == 'FESP'">
+                    <t t-foreach="o.tax_line_ids" t-as="tax">
+                        <tr style="font-size: 80%;">
+                            <td><span t-esc="tax.name"/></td>
+                            <td class="text-right o_price_total">
+                                <span t-esc="tax.amount" />
+                            </td>
+                        </tr>
+                    </t>
+                </t>
+                <t t-if="not o.journal_id.tipo_documento_fel == 'FESP'">
+                    <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                        <tr style="font-size: 80%;">
+                            <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
+                                <td><span t-esc="amount_by_group[0]"/></td>
+                                <td class="text-right o_price_total">
+                                    <span t-esc="amount_by_group[3]" />
+                                </td>
+                            </t>
+                            <t t-else="">
+                                <td>
+                                    <span t-esc="amount_by_group[0]"/>
+                                    <span>&amp;nbsp;<span>en</span>
+                                        <t t-esc="amount_by_group[4]"/>
+                                    </span>
+                                </td>
+                                <td class="text-right o_price_total">
+                                    <span t-esc="amount_by_group[3]"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                </t>
+            </xpath>
+            
+            <xpath expr="//div[@id='total']/div/table" position="inside">
+                <tr class="border-black o_total">
+                    <td colspan="2" class="text-center" style="font-size: 85%;">
+                        <span t-esc="o.num_a_letras(o.amount_total)"/> quetzales
+                    </td>
+                </tr>
+            </xpath>
             
             <xpath expr="//div[@id='total']" position="after">
-                <p class="col-xs-1 text-center">
+                <p class="col-xs-1 text-center" style="font-size: 80%;">
                     DOCUMENTO TRIBUTARIO ELECTRÓNICO
-                    <br/>FACTURA
+                    <br/>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'FACT'">
+                        FACTURA ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'FCAM'">
+                        FACTURA CAMBIARI ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'FPEQ'">
+                        FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'FCAP'">
+                        FACTURA CAMBIARI PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'FESP'">
+                        FACTURA ESPECIAL ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'NABN'">
+                        NOTA DE ABONO ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'RDON'">
+                        RECIBO POR DONACIÓN ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'RECI'">
+                        RECIBO ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'NDEB'">
+                        NOTA DE DÉBITO ELECTRÓNICA
+                    </t>
+                    <t t-if="o.journal_id.tipo_documento_fel == 'NCRE'">
+                        NOTA DE CRÉDITO ELECTRÓNICA
+                    </t>
                     <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
                     <br/>Número de Autorización: <span t-field="o.firma_fel"/>
                     <br/>Fecha de Emisión: <t t-esc="o.date_invoice"/>
@@ -20,6 +119,11 @@
                     </t>    
                 </p>
             </xpath>
+            
+            <xpath expr="//div[@class='page']/p[@t-if='o.reference']" position="replace">
+                <br/>Referencia para realizar su pago: <b><span t-field="o.reference"/></b>
+            </xpath>
+            
         </template>
         
     </data>
