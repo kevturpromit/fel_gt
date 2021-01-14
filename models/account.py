@@ -128,7 +128,7 @@ class AccountInvoice(models.Model):
         hora = "00:00:00-06:00"
         fecha_hora = fecha+'T'+hora
 
-        DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel)
+        DatosGenerales = etree.SubElement(DatosEmision, DTE_NS+"DatosGenerales", CodigoMoneda=moneda, FechaHoraEmision=fecha_hora, Tipo=tipo_documento_fel, NumeroAcceso=str(factura.id+100000000))
         if factura.tipo_gasto == 'importacion':
             DatosGenerales.attrib['Exp'] = "SI"
 
@@ -244,7 +244,7 @@ class AccountInvoice(models.Model):
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
-        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and float_is_zero(gran_total_impuestos, precision_rounding=factura.currency_id.rounding):
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.tipo_gasto == 'importacion' and float_is_zero(gran_total_impuestos, precision_rounding=factura.currency_id.rounding):
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
@@ -356,6 +356,7 @@ class AccountJournal(models.Model):
     codigo_establecimiento_fel = fields.Char('Codigo Establecimiento FEL', copy=False)
     tipo_documento_fel = fields.Selection([('FACT', 'FACT'), ('FCAM', 'FCAM'), ('FPEQ', 'FPEQ'), ('FCAP', 'FCAP'), ('FESP', 'FESP'), ('NABN', 'NABN'), ('RDON', 'RDON'), ('RECI', 'RECI'), ('NDEB', 'NDEB'), ('NCRE', 'NCRE')], 'Tipo de Documento FEL', copy=False)
     error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en patalla, solo se registran en el historial')
+    contingencia_fel = fields.Boolean('Habilitar contingencia FEL')
 
 class ResCompany(models.Model):
     _inherit = "res.company"
