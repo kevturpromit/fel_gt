@@ -25,12 +25,12 @@
             
             <xpath expr="/t/t/t/div" position="replace">
                 <div t-if="o.partner_id.vat" class="mt16" style="font-size: 95%;">NIT: <span t-field="o.partner_id.vat"/></div>
-                <div t-if="o.journal_id.tipo_documento_fel == 'FESP' and not o.partner_id.vat and o.partner_id.cui" class="mt16" style="font-size: 95%;">CUI: <span t-field="o.partner_id.cui"/></div>
+                <div t-if="o.journal_id.tipo_documento_fel in [5,'FESP'] and not o.partner_id.vat and o.partner_id.cui" class="mt16" style="font-size: 95%;">CUI: <span t-field="o.partner_id.cui"/></div>
                 <br/>
             </xpath>
             
-            <xpath t-if="o.journal_id.tipo_documento_fel == 'FESP'" expr="//div[@id='total']/div/table/t" position="replace">
-                <t t-if="o.journal_id.tipo_documento_fel == 'FESP'">
+            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/t" position="replace">
+                <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
                     <t t-foreach="o.tax_line_ids" t-as="tax">
                         <tr style="font-size: 80%;">
                             <td><span t-esc="tax.name"/></td>
@@ -40,7 +40,7 @@
                         </tr>
                     </t>
                 </t>
-                <t t-if="not o.journal_id.tipo_documento_fel == 'FESP'">
+                <t t-if="not o.journal_id.tipo_documento_fel in [5,'FESP']">
                     <t t-foreach="o.amount_by_group" t-as="amount_by_group">
                         <tr style="font-size: 80%;">
                             <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
@@ -77,34 +77,34 @@
                 <p class="col-xs-1 text-center" style="font-size: 80%;">
                     DOCUMENTO TRIBUTARIO ELECTRÓNICO
                     <br/>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'FACT'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [1,'FACT']">
                         FACTURA ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'FCAM'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [2,'FCAM']">
                         FACTURA CAMBIARI ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'FPEQ'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [3,'FPEQ']">
                         FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'FCAP'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [4,'FCAP']">
                         FACTURA CAMBIARI PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'FESP'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
                         FACTURA ESPECIAL ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'NABN'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [6,'NABN']">
                         NOTA DE ABONO ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'RDON'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [7,'RDON']">
                         RECIBO POR DONACIÓN ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'RECI'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [8,'RECI']">
                         RECIBO ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'NDEB'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB']">
                         NOTA DE DÉBITO ELECTRÓNICA
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel == 'NCRE'">
+                    <t t-if="o.journal_id.tipo_documento_fel in [10,'NCRE']">
                         NOTA DE CRÉDITO ELECTRÓNICA
                     </t>
                     <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
