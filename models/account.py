@@ -5,6 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
 from odoo.tools import float_is_zero, float_compare
 from odoo.release import version_info
+import odoo.addons.l10n_gt_extra.a_letras as a_letras
 
 from datetime import datetime
 import base64
@@ -34,6 +35,9 @@ class AccountInvoice(models.Model):
     resultado_xml_fel = fields.Binary('Resultado xml FEL', copy=False)
     resultado_xml_fel_name = fields.Char('Resultado doc xml FEL', default='resultado_xml_fel.xml', size=32)
     certificador_fel = fields.Char('Certificador FEL', copy=False)
+    
+    def num_a_letras(self, amount):
+        return a_letras.num_a_letras(amount,completo=False)
 
     def error_certificador(self, error):
         self.ensure_one()
