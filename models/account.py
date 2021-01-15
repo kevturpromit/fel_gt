@@ -22,7 +22,7 @@ class AccountMove(models.Model):
     firma_fel = fields.Char('Firma FEL', copy=False)
     serie_fel = fields.Char('Serie FEL', copy=False)
     numero_fel = fields.Char('Numero FEL', copy=False)
-    factura_original_id = fields.Many2one('account.move', string="Factura original FEL", domain="[('type', '=', 'out_invoice')]")
+    factura_original_id = fields.Many2one('account.move', string="Factura original FEL", domain="[('invoice_date', '!=', False)]")
     consignatario_fel = fields.Many2one('res.partner', string="Consignatario o Destinatario FEL")
     comprador_fel = fields.Many2one('res.partner', string="Comprador FEL")
     exportador_fel = fields.Many2one('res.partner', string="Exportador FEL")
@@ -46,7 +46,7 @@ class AccountMove(models.Model):
     def requiere_certificacion(self):
         self.ensure_one()
         factura = self
-        return factura.type in ['out_invoice', 'out_refund', 'in_invoice'] and factura.journal_id.generar_fel and factura.amount_total != 0
+        return factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
 
     def error_pre_validacion(self):
         self.ensure_one()
@@ -128,7 +128,8 @@ class AccountMove(models.Model):
         DatosEmision = etree.SubElement(DTE, DTE_NS+"DatosEmision", ID="DatosEmision")
 
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        if tipo_documento_fel in ['FACT', 'FACM'] and factura.type == 'out_refund':
+        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         moneda = "GTQ"
@@ -373,7 +374,8 @@ class AccountMove(models.Model):
         DS_NS = "{http://www.w3.org/2000/09/xmldsig#}"
     
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        if tipo_documento_fel in ['FACT', 'FACM'] and factura.type == 'out_refund':
+        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         nit_receptor = 'CF'
