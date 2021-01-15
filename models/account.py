@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
 from odoo.tools import float_is_zero, float_compare
 from odoo.release import version_info
-import odoo.addons.l10n_gt_extra.a_letras as a_letras
+from num2words import num2words
 
 from datetime import datetime
 import base64
@@ -37,7 +37,7 @@ class AccountInvoice(models.Model):
     certificador_fel = fields.Char('Certificador FEL', copy=False)
     
     def num_a_letras(self, amount):
-        return a_letras.num_a_letras(amount,completo=False)
+        return num2words(amount, lang='es').capitalize()
 
     def error_certificador(self, error):
         self.ensure_one()
