@@ -5,7 +5,7 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools.float_utils import float_round
 from odoo.tools import float_is_zero, float_compare
 from odoo.release import version_info
-from num2words import num2words 
+from num2words import num2words
 
 from datetime import datetime
 import base64
@@ -69,13 +69,15 @@ class AccountInvoice(models.Model):
         for linea in invoice_line_ids:
             if linea.price_total > 0:
                 lineas_positivas.append(linea)
-                precio_total_positivo += linea.price_total
+                precio_total_positivo += linea.price_unit * linea.quantity
             elif linea.price_total < 0:
                 precio_total_descuento += abs(linea.price_total)
                 linea.price_unit = 0
 
-        for linea in lineas_positivas:
-            linea.discount = (precio_total_descuento / precio_total_positivo) * 100
+        if precio_total_descuento > 0:
+            for linea in lineas_positivas:
+                linea.discount = (precio_total_descuento / precio_total_positivo) * 100 + linea.discount
+                
         return True
 
     def dte_documento(self):

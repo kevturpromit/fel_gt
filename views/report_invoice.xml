@@ -28,7 +28,6 @@
                 <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
                     <div t-if="not o.partner_id.vat or o.partner_id.vat == 'CF' and o.partner_id.cui" class="mt16" style="font-size: 95%;">CUI: <span t-field="o.partner_id.cui"/></div>
                 </t>
-                
                 <br/>
             </xpath>
             
