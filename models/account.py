@@ -22,7 +22,7 @@ class AccountMove(models.Model):
     firma_fel = fields.Char('Firma FEL', copy=False)
     serie_fel = fields.Char('Serie FEL', copy=False)
     numero_fel = fields.Char('Numero FEL', copy=False)
-    factura_original_id = fields.Many2one('account.move', string="Factura original FEL", domain="[('type', '=', 'out_invoice')]")
+    factura_original_id = fields.Many2one('account.move', string="Factura original FEL", domain="[('invoice_date', '!=', False)]")
     consignatario_fel = fields.Many2one('res.partner', string="Consignatario o Destinatario FEL")
     comprador_fel = fields.Many2one('res.partner', string="Comprador FEL")
     exportador_fel = fields.Many2one('res.partner', string="Exportador FEL")
@@ -46,13 +46,13 @@ class AccountMove(models.Model):
     def requiere_certificacion(self):
         self.ensure_one()
         factura = self
-        return factura.type in ['out_invoice', 'out_refund', 'in_invoice'] and factura.journal_id.generar_fel and factura.amount_total != 0
+        return factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
 
     def error_pre_validacion(self):
         self.ensure_one()
         factura = self
         if factura.firma_fel:
-            factura.error_fel("La factura ya fue validada, por lo que no puede ser validada nuevamnte")
+            factura.error_certificador("La factura ya fue validada, por lo que no puede ser validada nuevamnte")
             return True
 
         return False
@@ -128,7 +128,8 @@ class AccountMove(models.Model):
         DatosEmision = etree.SubElement(DTE, DTE_NS+"DatosEmision", ID="DatosEmision")
 
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        if tipo_documento_fel in ['FACT', 'FACM'] and factura.type == 'out_refund':
+        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         moneda = "GTQ"
@@ -272,7 +273,7 @@ class AccountMove(models.Model):
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total+gran_total_impuestos_isd))
 
-        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.tipo_gasto == 'importacion' and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
+        if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
 
         if factura.company_id.adenda_fel:
@@ -393,7 +394,8 @@ class AccountMove(models.Model):
         DS_NS = "{http://www.w3.org/2000/09/xmldsig#}"
     
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        if tipo_documento_fel in ['FACT', 'FACM'] and factura.type == 'out_refund':
+        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         nit_receptor = 'CF'

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
+        
         <record model="ir.ui.view" id="invoice_form_fel_gt">
             <field name="name">account.move.form.fel_gt</field>
             <field name="model">account.move</field>
@@ -35,23 +35,25 @@
                 </data>
             </field>
         </record>
-
+        
         <record model="ir.ui.view" id="journal_form_fel_gt">
             <field name="name">account.journal.form.fel_gt</field>
             <field name="model">account.journal</field>
-            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="inherit_id" ref="l10n_gt_extra.l10n_gt_view_account_journal_form"/>
             <field name="arch" type="xml">
                 <data>
-                    <field name="currency_id" position="after">
-                        <field name="generar_fel"/>
-                        <field name="tipo_documento_fel"/>
-                        <field name="error_en_historial_fel"/>
-                        <field name="contingencia_fel"/>
-                    </field>
+                    <group name="extra" position="inside">
+                        <group string="FEL">
+                            <field name="generar_fel"/>
+                            <field name="tipo_documento_fel"/>
+                            <field name="error_en_historial_fel"/>
+                            <field name="contingencia_fel"/>
+                        </group>
+                    </group>
                 </data>
             </field>
         </record>
-
+        
         <record id="view_company_form_fel_gt" model="ir.ui.view">
             <field name="name">res.company.form.fel_gt</field>
             <field name="model">res.company</field>
@@ -59,8 +61,8 @@
             <field name="arch" type="xml">
                 <data>
                     <notebook position="inside">
-                        <page string="FEL">
-                            <group string="Configuración general">
+                        <page string="Extra">
+                            <group string="FEL">
                                 <group>
                                     <field name="afiliacion_iva_fel"/>
                                     <field name="frases_fel"/>
@@ -72,6 +74,6 @@
                 </data>
             </field>
         </record>
-
+        
     </data>
 </openerp>
