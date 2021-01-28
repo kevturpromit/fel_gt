@@ -105,9 +105,16 @@
                     <t t-if="o.journal_id.tipo_documento_fel in [10,'NCRE']">
                         NOTA DE CRÉDITO ELECTRÓNICA
                     </t>
-                    <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
-                    <br/>Número de Autorización: <span t-field="o.firma_fel"/>
-                    <br/>Fecha de Emisión: <t t-esc="o.date_invoice"/>
+                    <t t-if="o.journal_id.contingencia_fel and o.state == 'draft'">
+                        Documento en Contingencia<br/>
+                        Número de Acceso: <span t-esc="o.id+100000000"/><br/>
+                        Emisión en contingencia, obtenga el DTE Certificado en el sitio www.sat.gob.gt/efactura<br/>
+                    </t>
+                    <t t-if="o.firma_fel">
+                        <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
+                        <br/>Número de Autorización: <span t-field="o.firma_fel"/>
+                        <br/>Fecha de Emisión: <t t-esc="o.date_invoice"/>
+                    </t>
                     <br/>Sujeto a pagos trimestrales ISR
                     <br/><br/>Certificador: <span t-field="o.certificador_fel"/>
                     <t t-if="not o.certificador_fel">
