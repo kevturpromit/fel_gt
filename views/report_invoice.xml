@@ -67,7 +67,7 @@
             
             <xpath expr="//div[@id='total']" position="after">
                 <div style="font-size: 95%;">
-                   <b>Total en letras: <span t-esc="o.num_a_letras(o.amount_total)"/> Quetzales </b>
+                   <b>Total en letras: <span t-esc="o.num_a_letras(o.amount_total)"/></b>
                 </div>
                 
                 <p class="col-xs-1 text-center" style="font-size: 80%;">
@@ -78,13 +78,13 @@
                         FACTURA ELECTRÓNICA
                     </t>
                     <t t-if="o.journal_id.tipo_documento_fel in [2,'FCAM']">
-                        FACTURA CAMBIARI ELECTRÓNICA
+                        FACTURA CAMBIARIA ELECTRÓNICA
                     </t>
                     <t t-if="o.journal_id.tipo_documento_fel in [3,'FPEQ']">
                         FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
                     </t>
                     <t t-if="o.journal_id.tipo_documento_fel in [4,'FCAP']">
-                        FACTURA CAMBIARI PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                        FACTURA CAMBIARIA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
                     </t>
                     <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
                         FACTURA ESPECIAL ELECTRÓNICA
