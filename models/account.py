@@ -128,8 +128,8 @@ class AccountMove(models.Model):
         DatosEmision = etree.SubElement(DTE, DTE_NS+"DatosEmision", ID="DatosEmision")
 
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
-        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
+        tipo_interno_factura = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factura == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         moneda = "GTQ"
@@ -374,8 +374,8 @@ class AccountMove(models.Model):
         DS_NS = "{http://www.w3.org/2000/09/xmldsig#}"
     
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
-        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
+        tipo_interno_factura = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factura == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         nit_receptor = 'CF'
