@@ -33,7 +33,7 @@
                             </t>
                          </td>
                          <td style="text-align: right;font-size: 90%">
-                             <t t-if="not o.journal_id.contingencia_fel and o.state != 'draft'">
+                             <t t-if="o.state != 'draft'">
                                  DOCUMENTO TRIBUTARIO ELECTRÓNICO
                              </t>
                             <br/>
@@ -81,14 +81,28 @@
                          </td>
                      </tr>
                  </table>
+
             </xpath>
             
             <xpath expr="//div[@name='description']" position="replace">
             </xpath>
             
-            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/tr" position="replace">
+            <xpath expr="//tbody[@class='invoice_tbody']/t" position="after">
+                <t t-set="total" t-value="0"/>
             </xpath>
-            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/t" position="replace">
+            <xpath expr="//tbody[@class='invoice_tbody']/t[3]/tr/t/td[7]" position="replace">
+                <td class="text-right o_price_total">
+                    <span t-esc="(line.price_unit * (100-line.discount) / 100) * line.quantity"/>
+                    <t t-set="total" t-value="total + ((line.price_unit * (100-line.discount) / 100) * line.quantity)"/>
+                </td>
+            </xpath>
+            
+            <xpath expr="//div[@id='total']/div/table/tr" position="replace">
+            </xpath>
+            <xpath expr="//div[@id='total']/div/table/t" position="replace">
+            </xpath>
+            <xpath expr="//div[@id='total']/div/table/tr/td[2]/span" position="replace">
+                <span t-esc="total"/>
             </xpath>
             
             <xpath expr="//div[@id='total']" position="after">
@@ -103,7 +117,7 @@
                     </t>
                     <br/>Sujeto a pagos trimestrales ISR
                     <br/><br/>
-                    <t t-if="not o.journal_id.contingencia_fel and o.state != 'draft'">
+                    <t t-if="o.state != 'draft'">
                         Certificador: <span t-field="o.certificador_fel"/>
                         <t t-if="not o.certificador_fel">
                             GUATEFACTURAS SOCIEDAD ANONIMA<br/>
