@@ -20,6 +20,7 @@
             
             <xpath expr="//h2" position="replace">
             </xpath>
+            
              <xpath expr="//t[@t-set='address']" position="replace">
                  <br/>
                  <table style="width:100%;">
@@ -31,32 +32,34 @@
                                 <div t-if="not o.partner_id.vat or o.partner_id.vat == 'CF' and o.partner_id.cui" class="mt16" style="font-size: 95%">CUI: <span t-field="o.partner_id.cui"/></div>
                             </t>
                          </td>
-                         <td style="text-align: left;">
-                             DOCUMENTO TRIBUTARIO ELECTRÓNICO
+                         <td style="text-align: right;font-size: 90%">
+                             <t t-if="not o.journal_id.contingencia_fel and o.state != 'draft'">
+                                 DOCUMENTO TRIBUTARIO ELECTRÓNICO
+                             </t>
                             <br/>
                             <t t-if="o.journal_id.tipo_documento_fel in [1,'FACT']">
                                 FACTURA
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [2,'FCAM']">
-                                FACTURA CAMBIARIA ELECTRÓNICA
+                                FACTURA CAMBIARIA 
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [3,'FPEQ']">
-                                FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                                FACTURA PEQUEÑO CONTRIBUYENTE
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [4,'FCAP']">
-                                FACTURA CAMBIARIA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                                FACTURA CAMBIARIA PEQUEÑO CONTRIBUYENTE
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
                                 FACTURA ESPECIAL
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [6,'NABN']">
-                                NOTA DE ABONO ELECTRÓNICA
+                                NOTA DE ABONO 
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [7,'RDON']">
-                                RECIBO POR DONACIÓN ELECTRÓNICA
+                                RECIBO POR DONACIÓN 
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [8,'RECI']">
-                                RECIBO ELECTRÓNICA
+                                RECIBO 
                             </t>
                             <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB']">
                                 NOTA DE DÉBITO
@@ -70,6 +73,7 @@
                                 Emisión en contingencia, obtenga el DTE Certificado en el sitio www.sat.gob.gt/efactura<br/>
                             </t>
                             <t t-if="o.firma_fel">
+                                <br/>
                                 Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/><br/>
                                 Número de Autorización: <span t-field="o.firma_fel"/><br/>
                                 Fecha de Emisión: <t t-esc="o.date_invoice"/><br/>
@@ -122,7 +126,6 @@
                 <div style="font-size: 95%;">
                    <b>Total en letras: <span t-esc="o.num_a_letras(o.amount_total)"/></b>
                 </div>
-                
                 <p class="col-xs-1 text-center" style="font-size: 80%;">
                     <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB'] or o.journal_id.tipo_documento_fel in [10,'NCRE']">
                         <t t-if="o.factura_original_id">
@@ -130,11 +133,14 @@
                         </t>
                     </t>
                     <br/>Sujeto a pagos trimestrales ISR
-                    <br/><br/>Certificador: <span t-field="o.certificador_fel"/>
-                    <t t-if="not o.certificador_fel">
-                        GUATEFACTURAS SOCIEDAD ANONIMA<br/>
-                        NIT: 5640773-4<br/>
-                    </t>    
+                    <br/><br/>
+                    <t t-if="not o.journal_id.contingencia_fel and o.state != 'draft'">
+                        Certificador: <span t-field="o.certificador_fel"/>
+                        <t t-if="not o.certificador_fel">
+                            GUATEFACTURAS SOCIEDAD ANONIMA<br/>
+                            NIT: 5640773-4<br/>
+                        </t>
+                    </t> 
                 </p>
             </xpath>
             
