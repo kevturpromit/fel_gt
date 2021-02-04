@@ -21,13 +21,58 @@
             <xpath expr="//h2" position="replace">
             </xpath>
              <xpath expr="//t[@t-set='address']" position="replace">
-                <br/>
-                <address style="font-size: 90%" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name","phone"], "no_marker": True}' />
-                <div t-if="o.partner_id.vat" class="mt16" style="font-size: 95%">NIT: <span t-field="o.partner_id.vat"/></div>
-                <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
-                    <div t-if="not o.partner_id.vat or o.partner_id.vat == 'CF' and o.partner_id.cui" class="mt16" style="font-size: 95%">CUI: <span t-field="o.partner_id.cui"/></div>
-
-                </t>
+                 <br/>
+                 <table style="width:100%;">
+                     <tr>
+                         <td>
+                            <address style="font-size: 90%" t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name","phone"], "no_marker": True}' />
+                            <div t-if="o.partner_id.vat" class="mt16" style="font-size: 95%">NIT: <span t-field="o.partner_id.vat"/></div>
+                            <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
+                                <div t-if="not o.partner_id.vat or o.partner_id.vat == 'CF' and o.partner_id.cui" class="mt16" style="font-size: 95%">CUI: <span t-field="o.partner_id.cui"/></div>
+                            </t>
+                         </td>
+                         <td style="text-align: left;">
+                             DOCUMENTO TRIBUTARIO ELECTRÓNICO
+                            <br/>
+                            <t t-if="o.journal_id.tipo_documento_fel in [1,'FACT']">
+                                FACTURA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [2,'FCAM']">
+                                FACTURA CAMBIARIA ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [3,'FPEQ']">
+                                FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [4,'FCAP']">
+                                FACTURA CAMBIARIA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
+                                FACTURA ESPECIAL
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [6,'NABN']">
+                                NOTA DE ABONO ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [7,'RDON']">
+                                RECIBO POR DONACIÓN ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [8,'RECI']">
+                                RECIBO ELECTRÓNICA
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB']">
+                                NOTA DE DÉBITO
+                            </t>
+                            <t t-if="o.journal_id.tipo_documento_fel in [10,'NCRE']">
+                                NOTA DE CRÉDITO
+                            </t>
+                            <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
+                            <br/>Número de Autorización: <span t-field="o.firma_fel"/>
+                            <br/>Fecha de Emisión: <t t-esc="o.date_invoice"/>
+                         </td>
+                     </tr>
+                 </table>
+            </xpath>
+            
+            <xpath expr="//div[@name='description']" position="replace">
             </xpath>
             
             <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/t" position="replace">
@@ -72,42 +117,11 @@
                 </div>
                 
                 <p class="col-xs-1 text-center" style="font-size: 80%;">
-                    <br/>
-                    DOCUMENTO TRIBUTARIO ELECTRÓNICO
-                    <br/>
-                    <t t-if="o.journal_id.tipo_documento_fel in [1,'FACT']">
-                        FACTURA ELECTRÓNICA
+                    <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB'] or o.journal_id.tipo_documento_fel in [10,'NCRE']">
+                        <t t-if="o.factura_original_id">
+                            <br/>Factura Asociada: Serie Fel <span t-field="o.factura_original_id.serie_fel"/>, Número Fel: <span t-field="o.factura_original_id.numero_fel"/>, Fecha de Emisión: <t t-esc="o.factura_original_id.date_invoice"/>
+                        </t>
                     </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [2,'FCAM']">
-                        FACTURA CAMBIARIA ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [3,'FPEQ']">
-                        FACTURA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [4,'FCAP']">
-                        FACTURA CAMBIARIA PEQUEÑO CONTRIBUYENTE ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [5,'FESP']">
-                        FACTURA ESPECIAL ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [6,'NABN']">
-                        NOTA DE ABONO ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [7,'RDON']">
-                        RECIBO POR DONACIÓN ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [8,'RECI']">
-                        RECIBO ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB']">
-                        NOTA DE DÉBITO ELECTRÓNICA
-                    </t>
-                    <t t-if="o.journal_id.tipo_documento_fel in [10,'NCRE']">
-                        NOTA DE CRÉDITO ELECTRÓNICA
-                    </t>
-                    <br/>Serie Fel: <span t-field="o.serie_fel"/>.   Número Fel: <span t-field="o.numero_fel"/>
-                    <br/>Número de Autorización: <span t-field="o.firma_fel"/>
-                    <br/>Fecha de Emisión: <t t-esc="o.date_invoice"/>
                     <br/>Sujeto a pagos trimestrales ISR
                     <br/><br/>Certificador: <span t-field="o.certificador_fel"/>
                     <t t-if="not o.certificador_fel">
