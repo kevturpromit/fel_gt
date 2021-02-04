@@ -81,6 +81,7 @@
                          </td>
                      </tr>
                  </table>
+
             </xpath>
             
             <xpath expr="//div[@name='description']" position="replace">
@@ -96,11 +97,11 @@
                 </td>
             </xpath>
             
-            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/tr" position="replace">
+            <xpath expr="//div[@id='total']/div/table/tr" position="replace">
             </xpath>
-            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/t" position="replace">
+            <xpath expr="//div[@id='total']/div/table/t" position="replace">
             </xpath>
-            <xpath t-if="o.journal_id.tipo_documento_fel in [5,'FESP']" expr="//div[@id='total']/div/table/tr/td[2]/span" position="replace">
+            <xpath expr="//div[@id='total']/div/table/tr/td[2]/span" position="replace">
                 <span t-esc="total"/>
             </xpath>
             
