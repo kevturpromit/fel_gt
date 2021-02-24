@@ -104,12 +104,12 @@
             <xpath expr="//div[@id='total']/div/table/t" position="replace">
             </xpath>
             <xpath expr="//div[@id='total']/div/table/tr/td[2]/span" position="replace">
-                <span t-esc="total"/>
+                <span t-esc="total" t-options='{"widget": "float", "precision": 2}'/>
             </xpath>
             
             <xpath expr="//div[@id='total']" position="after">
                 <div style="font-size: 95%;">
-                   <b>Total en letras: <span t-esc="o.num_a_letras(o.amount_total)"/></b>
+                   <b>Total en letras: <span t-esc="o.num_a_letras(total)"/></b>
                 </div>
                 <p class="col-xs-1 text-center" style="font-size: 80%;">
                     <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB'] or o.journal_id.tipo_documento_fel in [10,'NCRE']">
