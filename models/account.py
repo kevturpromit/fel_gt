@@ -247,9 +247,8 @@ class AccountMove(models.Model):
             gran_total_impuestos += factura.currency_id.round(total_impuestos)
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
-        if cantidad_impuestos > 0:
-            TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+        TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
+        TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
