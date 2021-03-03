@@ -234,11 +234,10 @@ class AccountMove(models.Model):
             CodigoUnidadGravable.text = "1"
             if factura.currency_id.is_zero(total_impuestos):
                 CodigoUnidadGravable.text = "2"
-            else:
-                MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
-                MontoGravable.text = '{:.6f}'.format(total_linea_base)
-                MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
-                MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
+            MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
+            MontoGravable.text = '{:.6f}'.format(total_linea_base)
+            MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+            MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(total_linea)
 
