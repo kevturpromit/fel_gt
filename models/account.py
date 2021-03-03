@@ -227,11 +227,10 @@ class AccountInvoice(models.Model):
             CodigoUnidadGravable.text = "1"
             if float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
                 CodigoUnidadGravable.text = "2"
-            else:
-                MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
-                MontoGravable.text = '{:.3f}'.format(factura.currency_id.round(total_linea_base))
-                MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
-                MontoImpuesto.text = '{:.3f}'.format(factura.currency_id.round(total_impuestos))
+            MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
+            MontoGravable.text = '{:.3f}'.format(factura.currency_id.round(total_linea_base))
+            MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+            MontoImpuesto.text = '{:.3f}'.format(factura.currency_id.round(total_impuestos))
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(factura.currency_id.round(total_linea))
 
