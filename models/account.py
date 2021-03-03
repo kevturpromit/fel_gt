@@ -226,15 +226,15 @@ class AccountMove(models.Model):
             Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
             Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
             Descuento.text = '{:.6f}'.format(descuento)
-            if len(linea.tax_ids) > 0:
-                Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
-                Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
-                NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
-                NombreCorto.text = "IVA"
-                CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
-                CodigoUnidadGravable.text = "1"
-                if factura.currency_id.is_zero(total_impuestos):
-                    CodigoUnidadGravable.text = "2"
+            Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
+            Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
+            NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
+            NombreCorto.text = "IVA"
+            CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
+            CodigoUnidadGravable.text = "1"
+            if factura.currency_id.is_zero(total_impuestos):
+                CodigoUnidadGravable.text = "2"
+            else:
                 MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
