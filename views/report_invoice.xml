@@ -94,7 +94,7 @@
             </xpath>
             <xpath expr="//tbody[@class='invoice_tbody']/t[3]/tr/t/td[7]" position="replace">
                 <td class="text-right o_price_total">
-                    <span t-esc="(line.price_unit * (100-line.discount) / 100) * line.quantity"/>
+                    <span t-esc="(line.price_unit * (100-line.discount) / 100) * line.quantity" t-options='{"widget": "float", "precision": 2}'/>
                     <t t-set="total" t-value="total + ((line.price_unit * (100-line.discount) / 100) * line.quantity)"/>
                 </td>
             </xpath>
