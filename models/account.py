@@ -161,7 +161,7 @@ class AccountMove(models.Model):
             nit_receptor = factura.partner_id.vat.replace('-','')
         if tipo_documento_fel == "FESP" and factura.partner_id.cui:
             nit_receptor = factura.partner_id.cui
-        Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name)
+        Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name if not factura.partner_id.parent_id else factura.partner_id.parent_id.name)
         if factura.partner_id.nombre_facturacion_fel:
             Receptor.attrib['NombreReceptor'] = factura.partner_id.nombre_facturacion_fel
         if factura.partner_id.email:
