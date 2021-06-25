@@ -219,18 +219,19 @@ class AccountInvoice(models.Model):
             Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
             Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
             Descuento.text = '{:.6f}'.format(descuento)
-            Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
-            Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
-            NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
-            NombreCorto.text = "IVA"
-            CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
-            CodigoUnidadGravable.text = "1"
-            if float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
-                CodigoUnidadGravable.text = "2"
-            MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
-            MontoGravable.text = '{:.3f}'.format(factura.currency_id.round(total_linea_base))
-            MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
-            MontoImpuesto.text = '{:.3f}'.format(factura.currency_id.round(total_impuestos))
+            if tipo_documento_fel not in ['NABN']:
+                Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
+                Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
+                NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
+                NombreCorto.text = "IVA"
+                CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
+                CodigoUnidadGravable.text = "1"
+                if float_is_zero(total_impuestos, precision_rounding=factura.currency_id.rounding):
+                    CodigoUnidadGravable.text = "2"
+                MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
+                MontoGravable.text = '{:.3f}'.format(factura.currency_id.round(total_linea_base))
+                MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+                MontoImpuesto.text = '{:.3f}'.format(factura.currency_id.round(total_impuestos))
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(factura.currency_id.round(total_linea))
 
@@ -239,8 +240,9 @@ class AccountInvoice(models.Model):
             gran_total_impuestos += factura.currency_id.round(total_impuestos)
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
-        TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-        TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+        if tipo_documento_fel not in ['NABN']:
+            TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
+            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
 
@@ -363,3 +365,4 @@ class ResCompany(models.Model):
 
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
+
