@@ -128,8 +128,8 @@ class AccountMove(models.Model):
         DatosEmision = etree.SubElement(DTE, DTE_NS+"DatosEmision", ID="DatosEmision")
 
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
-        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
+        tipo_interno_factura = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factura == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         moneda = "GTQ"
@@ -161,7 +161,7 @@ class AccountMove(models.Model):
             nit_receptor = factura.partner_id.vat.replace('-','')
         if tipo_documento_fel == "FESP" and factura.partner_id.cui:
             nit_receptor = factura.partner_id.cui
-        Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name)
+        Receptor = etree.SubElement(DatosEmision, DTE_NS+"Receptor", IDReceptor=nit_receptor, NombreReceptor=factura.partner_id.name if not factura.partner_id.parent_id else factura.partner_id.parent_id.name)
         if factura.partner_id.nombre_facturacion_fel:
             Receptor.attrib['NombreReceptor'] = factura.partner_id.nombre_facturacion_fel
         if factura.partner_id.email:
@@ -232,7 +232,7 @@ class AccountMove(models.Model):
             Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
             Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
             Descuento.text = '{:.6f}'.format(descuento)
-            if len(linea.tax_ids) > 0:
+            if tipo_documento_fel not in ['NABN']:
                 Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
                 Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                 NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
@@ -266,7 +266,7 @@ class AccountMove(models.Model):
             gran_total_impuestos_isd += factura.currency_id.round(total_impuestos_isd)
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
-        if cantidad_impuestos > 0:
+        if tipo_documento_fel not in ['NABN']:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
             if gran_total_impuestos_isd > 0:
@@ -396,8 +396,8 @@ class AccountMove(models.Model):
         DS_NS = "{http://www.w3.org/2000/09/xmldsig#}"
     
         tipo_documento_fel = factura.journal_id.tipo_documento_fel
-        tipo_interno_factua = factura.type if 'type' in factura.fields_get() else factura.move_type
-        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factua == 'out_refund':
+        tipo_interno_factura = factura.type if 'type' in factura.fields_get() else factura.move_type
+        if tipo_documento_fel in ['FACT', 'FACM'] and tipo_interno_factura == 'out_refund':
             tipo_documento_fel = 'NCRE'
 
         nit_receptor = 'CF'
