@@ -9,6 +9,8 @@ from lxml import etree
 import requests
 import re
 
+import odoo.addons.l10n_gt_extra.a_letras as a_letras
+
 #from OpenSSL import crypto
 #import xmlsig
 #from xades import XAdESContext, template, utils, ObjectIdentifier
@@ -34,6 +36,9 @@ class AccountMove(models.Model):
     resultado_xml_fel = fields.Binary('Resultado xml FEL', copy=False)
     resultado_xml_fel_name = fields.Char('Resultado doc xml FEL', default='resultado_xml_fel.xml', size=32)
     certificador_fel = fields.Char('Certificador FEL', copy=False)
+    
+    def num_a_letras(self, amount):
+        return a_letras.num_a_letras(amount,completo=True)
 
     def error_certificador(self, error):
         self.ensure_one()
@@ -65,7 +70,7 @@ class AccountMove(models.Model):
         precio_total_positivo = 0
 
         # Guardar las descripciones, por que las modificaciones de los precios
-        # y descuentos las resetean :(
+        # y descuentos las reinician :(
         descr = {}
         for linea in factura.invoice_line_ids:
             descr[linea.id] = linea.name
@@ -411,3 +416,4 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
+    
