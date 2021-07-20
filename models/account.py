@@ -209,7 +209,7 @@ class AccountMove(models.Model):
 
             total_impuestos_isd_unitario = 0
             if factura.tipo_gasto != 'importacion':
-                total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf*linea.product_id.x_studio_tarifa_isd_/100
+                total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf * linea.product_id.x_studio_tarifa_isd_ / 100
 
             tipo_producto = "B"
             if linea.product_id.type == 'service':
@@ -255,7 +255,7 @@ class AccountMove(models.Model):
                     NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
                     NombreCorto.text = "BEBIDAS ALCOHOLICAS"
                     CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
-                    CodigoUnidadGravable.text = "2"
+                    CodigoUnidadGravable.text = str(linea.product_id.x_studio_cdigo_unidad_gravable)
                     MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                     MontoGravable.text = '{:.6f}'.format(linea.product_id.x_studio_precio_fiscal_sugerido_al_cf)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
@@ -307,7 +307,7 @@ class AccountMove(models.Model):
                 FechaVencimiento = etree.SubElement(Abono, CFC_NS+"FechaVencimiento")
                 FechaVencimiento.text = str(factura.invoice_date_due)
                 MontoAbono = etree.SubElement(Abono, CFC_NS+"MontoAbono")
-                MontoAbono.text = '{:.3f}'.format(gran_total)
+                MontoAbono.text = '{:.3f}'.format(gran_total + gran_total_impuestos_isd)
 
             if tipo_documento_fel in ['FACT', 'FCAM'] and factura.tipo_gasto == 'importacion':
                 Complemento = etree.SubElement(Complementos, DTE_NS+"Complemento", IDComplemento="text", NombreComplemento="text", URIComplemento="http://www.sat.gob.gt/face2/ComplementoExportaciones/0.1.0")
