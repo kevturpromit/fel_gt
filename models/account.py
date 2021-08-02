@@ -208,7 +208,7 @@ class AccountMove(models.Model):
             linea_num += 1
 
             total_impuestos_isd_unitario = 0
-            if factura.tipo_gasto != 'importacion':
+            if factura.tipo_gasto != 'importacion' and tipo_documento_fel not in ['NABN']:
                 total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf * linea.product_id.x_studio_tarifa_isd_ / 100
 
             tipo_producto = "B"
@@ -438,4 +438,3 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
-    
