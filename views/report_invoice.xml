@@ -5,7 +5,8 @@
             <t t-call="web.internal_layout">
                 <t t-set="o" t-value="o.with_context(lang=lang)" />
                 <div class="page">
-                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 45px;" alt="Logo"/>
+                    <img t-if="o.journal_id.direccion.image_1920" t-att-src="image_data_uri(o.journal_id.direccion.image_1920)" style="max-height: 45px;" alt="Logo"/>
+                    <img t-if="o.company_id.logo and not o.journal_id.direccion.image_1920" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 45px;" alt="Logo"/>
                     
                     <h2>
                         <t t-if="o.state != 'draft'">
