@@ -209,7 +209,10 @@ class AccountMove(models.Model):
 
             total_impuestos_isd_unitario = 0
             if factura.tipo_gasto != 'importacion' and tipo_documento_fel not in ['NABN']:
-                total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf * linea.product_id.x_studio_tarifa_isd_ / 100
+                if linea.product_id.x_studio_precio_fiscal_sugerido_al_cf:
+                    total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf * linea.product_id.x_studio_tarifa_isd_ / 100
+                else:
+                    total_impuestos_isd_unitario = linea.product_id.x_studio_tarifa_isd_
 
             tipo_producto = "B"
             if linea.product_id.type == 'service':
@@ -262,6 +265,17 @@ class AccountMove(models.Model):
                     CantidadUnidadesGravables.text = str(linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
+                if linea.product_id.x_studio_precio_fiscal_sugerido_al_cf:
+                    Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
+                    NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
+                    NombreCorto.text = "BEBIDAS NO ALCOHOLICAS"
+                    CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
+                    CodigoUnidadGravable.text = str(linea.product_id.x_studio_cdigo_unidad_gravable)
+                    CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
+                    CantidadUnidadesGravables.text = str(linea.quantity)
+                    MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+                    MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
+                    
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.3f}'.format(total_linea+total_impuestos_isd)
 
@@ -438,3 +452,4 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
+    
