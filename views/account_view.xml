@@ -75,5 +75,20 @@
             </field>
         </record>
         
+        <record id="product_template_only_form_view_fel_gt" model="ir.ui.view">
+            <field name="name">online_search.product.template.product.form.fel_gt</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <field name="taxes_id" position="after">
+                        <field name="precio_fiscal_sugerido"/>
+                        <field name="tarifa_isd"/>
+                        <field name="codigo_unidad_gravable"/>
+                    </field>
+                </data>
+            </field>
+        </record>
+        
     </data>
 </openerp>

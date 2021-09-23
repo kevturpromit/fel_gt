@@ -209,10 +209,10 @@ class AccountMove(models.Model):
 
             total_impuestos_isd_unitario = 0
             if factura.tipo_gasto != 'importacion' and tipo_documento_fel not in ['NABN']:
-                if linea.product_id.x_studio_precio_fiscal_sugerido_al_cf:
-                    total_impuestos_isd_unitario = linea.product_id.x_studio_precio_fiscal_sugerido_al_cf * linea.product_id.x_studio_tarifa_isd_ / 100
+                if linea.product_id.precio_fiscal_sugerido:
+                    total_impuestos_isd_unitario = linea.product_id.precio_fiscal_sugerido * linea.product_id   tarifa_isd / 100
                 else:
-                    total_impuestos_isd_unitario = linea.product_id.x_studio_tarifa_isd_
+                    total_impuestos_isd_unitario = linea.product_id tarifa_isd
 
             tipo_producto = "B"
             if linea.product_id.type == 'service':
@@ -253,24 +253,24 @@ class AccountMove(models.Model):
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                 MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
-                if linea.product_id.x_studio_precio_fiscal_sugerido_al_cf > 0 and factura.tipo_gasto != 'importacion':
+                if linea.product_id.precio_fiscal_sugerido > 0 and factura.tipo_gasto != 'importacion':
                     Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                     NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
                     NombreCorto.text = "BEBIDAS ALCOHOLICAS"
                     CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
-                    CodigoUnidadGravable.text = str(linea.product_id.x_studio_cdigo_unidad_gravable)
+                    CodigoUnidadGravable.text = str(linea.product_id.codigo_unidad_gravable)
                     MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
-                    MontoGravable.text = '{:.6f}'.format(linea.product_id.x_studio_precio_fiscal_sugerido_al_cf)
+                    MontoGravable.text = '{:.6f}'.format(linea.product_id.precio_fiscal_sugerido)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
                     CantidadUnidadesGravables.text = str(linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
-                if linea.product_id.x_studio_precio_fiscal_sugerido_al_cf:
+                if linea.product_id.precio_fiscal_sugerido:
                     Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                     NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
                     NombreCorto.text = "BEBIDAS NO ALCOHOLICAS"
                     CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
-                    CodigoUnidadGravable.text = str(linea.product_id.x_studio_cdigo_unidad_gravable)
+                    CodigoUnidadGravable.text = str(linea.product_id.codigo_unidad_gravable)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
                     CantidadUnidadesGravables.text = str(linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
@@ -452,4 +452,11 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
+    
+class ResCompany(models.Model):
+    _inherit = "product.template"
+    
+    precio_fiscal_sugerido = fields.Float('Precio Fiscal Sugerido')
+    tarifa_isd = fields.Float('Tarifa ISD')
+    codigo_unidad_gravable = fields.Integer('Código Unidad Gravable')
     
