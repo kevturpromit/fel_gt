@@ -210,9 +210,9 @@ class AccountMove(models.Model):
             total_impuestos_isd_unitario = 0
             if factura.tipo_gasto != 'importacion' and tipo_documento_fel not in ['NABN']:
                 if linea.product_id.precio_fiscal_sugerido:
-                    total_impuestos_isd_unitario = linea.product_id.precio_fiscal_sugerido * linea.product_id   tarifa_isd / 100
+                    total_impuestos_isd_unitario = linea.product_id.precio_fiscal_sugerido * linea.product_id.tarifa_isd / 100
                 else:
-                    total_impuestos_isd_unitario = linea.product_id tarifa_isd
+                    total_impuestos_isd_unitario = linea.product_id.tarifa_isd
 
             tipo_producto = "B"
             if linea.product_id.type == 'service':
