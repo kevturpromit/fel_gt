@@ -262,7 +262,7 @@ class AccountMove(models.Model):
                     MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                     MontoGravable.text = '{:.6f}'.format(linea.product_id.precio_fiscal_sugerido)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
-                    CantidadUnidadesGravables.text = str(linea.quantity)
+                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable if linea.product_id.cantidad_unidad_gravable else linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                 if linea.product_id.precio_fiscal_sugerido:
@@ -272,7 +272,7 @@ class AccountMove(models.Model):
                     CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
                     CodigoUnidadGravable.text = str(linea.product_id.codigo_unidad_gravable)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
-                    CantidadUnidadesGravables.text = str(linea.quantity)
+                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable if linea.product_id.cantidad_unidad_gravable else linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                     
@@ -453,10 +453,11 @@ class ResCompany(models.Model):
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
     
-class ResCompany(models.Model):
+class ProductTemplate(models.Model):
     _inherit = "product.template"
     
     precio_fiscal_sugerido = fields.Float('Precio Fiscal Sugerido')
     tarifa_isd = fields.Float('Tarifa ISD')
     codigo_unidad_gravable = fields.Integer('Código Unidad Gravable')
+    cantidad_unidad_gravable = fields.Integer('Cantidad Unidad Gravable')
     

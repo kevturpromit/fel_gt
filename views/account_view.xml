@@ -85,6 +85,7 @@
                         <field name="precio_fiscal_sugerido"/>
                         <field name="tarifa_isd"/>
                         <field name="codigo_unidad_gravable"/>
+                        <field name="cantidad_unidad_gravable"/>
                     </field>
                 </data>
             </field>
