@@ -217,7 +217,7 @@ class AccountMove(models.Model):
                     total_impuestos_isd_unitario = linea.product_id.precio_fiscal_sugerido * linea.product_id.tarifa_isd / 100
                     total_impuestos_isd_unitario_alcoholico = total_impuestos_isd_unitario
                 else:
-                    total_impuestos_isd_unitario = linea.product_id.tarifa_isd
+                    total_impuestos_isd_unitario = linea.product_id.tarifa_isd * linea.product_id.cantidad_unidad_gravable
                     total_impuestos_isd_unitario_no_alcoholico = total_impuestos_isd_unitario
 
             tipo_producto = "B"
@@ -231,6 +231,8 @@ class AccountMove(models.Model):
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
             total_impuestos_isd = total_impuestos_isd_unitario * linea.quantity
+            total_impuestos_isd_alcoholico = total_impuestos_isd_unitario_alcoholico * linea.quantity
+            total_impuestos_isd_no_alcoholico = total_impuestos_isd_unitario_no_alcoholico * linea.quantity
             cantidad_impuestos += len(linea.tax_ids)
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
@@ -268,7 +270,7 @@ class AccountMove(models.Model):
                     MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
                     MontoGravable.text = '{:.6f}'.format(linea.product_id.precio_fiscal_sugerido)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
-                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable if linea.product_id.cantidad_unidad_gravable else linea.quantity)
+                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable * linea.quantity if linea.product_id.cantidad_unidad_gravable else linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                 if total_impuestos_isd_unitario_no_alcoholico > 0:
@@ -278,7 +280,7 @@ class AccountMove(models.Model):
                     CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
                     CodigoUnidadGravable.text = str(linea.product_id.codigo_unidad_gravable)
                     CantidadUnidadesGravables = etree.SubElement(Impuesto, DTE_NS+"CantidadUnidadesGravables")
-                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable if linea.product_id.cantidad_unidad_gravable else linea.quantity)
+                    CantidadUnidadesGravables.text = str(linea.product_id.cantidad_unidad_gravable * linea.quantity if linea.product_id.cantidad_unidad_gravable else linea.quantity)
                     MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                     
@@ -289,8 +291,8 @@ class AccountMove(models.Model):
             gran_subtotal += factura.currency_id.round(total_linea_base)
             gran_total_impuestos += factura.currency_id.round(total_impuestos)
             gran_total_impuestos_isd += factura.currency_id.round(total_impuestos_isd)
-            gran_total_impuestos_isd_alcoholico += factura.currency_id.round(total_impuestos_isd_unitario_alcoholico)
-            gran_total_impuestos_isd_no_alcoholico += factura.currency_id.round(total_impuestos_isd_unitario_no_alcoholico)
+            gran_total_impuestos_isd_alcoholico += factura.currency_id.round(total_impuestos_isd_alcoholico)
+            gran_total_impuestos_isd_no_alcoholico += factura.currency_id.round(total_impuestos_isd_no_alcoholico)
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         if tipo_documento_fel not in ['NABN']:
