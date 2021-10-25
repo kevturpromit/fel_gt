@@ -471,5 +471,5 @@ class ProductTemplate(models.Model):
     precio_fiscal_sugerido = fields.Float('Precio Fiscal Sugerido')
     tarifa_isd = fields.Float('Tarifa ISD')
     codigo_unidad_gravable = fields.Integer('Código Unidad Gravable')
-    cantidad_unidad_gravable = fields.Integer('Cantidad Unidad Gravable')
+    cantidad_unidad_gravable = fields.Float('Cantidad Unidad Gravable')
     
