@@ -48,10 +48,13 @@ class AccountMove(models.Model):
         else:
             raise UserError('No se publicó la factura por error del certificador FEL: '+error)
 
-    def requiere_certificacion(self):
+    def requiere_certificacion(self, certificador=''):
         self.ensure_one()
         factura = self
-        return factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
+        requiere = factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
+        if certificador:
+            requiere = requiere and ( factura.company_id.certificador_fel == certificador )
+        return requiere
 
     def error_pre_validacion(self):
         self.ensure_one()
@@ -407,12 +410,13 @@ class AccountJournal(models.Model):
 
     generar_fel = fields.Boolean('Generar FEL')
     tipo_documento_fel = fields.Selection([('FACT', 'FACT'), ('FCAM', 'FCAM'), ('FPEQ', 'FPEQ'), ('FCAP', 'FCAP'), ('FESP', 'FESP'), ('NABN', 'NABN'), ('RDON', 'RDON'), ('RECI', 'RECI'), ('NDEB', 'NDEB'), ('NCRE', 'NCRE')], 'Tipo de Documento FEL', copy=False)
-    error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en patalla, solo se registran en el historial')
+    error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en pantalla, solo se registran en el historial')
     contingencia_fel = fields.Boolean('Habilitar contingencia FEL')
     
 class ResCompany(models.Model):
     _inherit = "res.company"
 
+    certificador_fel = fields.Selection([], 'Certificador FEL')
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
