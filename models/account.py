@@ -248,18 +248,18 @@ class AccountMove(models.Model):
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                 MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
             Total = etree.SubElement(Item, DTE_NS+"Total")
-            Total.text = '{:.3f}'.format(total_linea)
+            Total.text = '{:.6f}'.format(total_linea)
 
-            gran_total += factura.currency_id.round(total_linea)
-            gran_subtotal += factura.currency_id.round(total_linea_base)
-            gran_total_impuestos += factura.currency_id.round(total_impuestos)
+            gran_total += total_linea
+            gran_subtotal += total_linea_base
+            gran_total_impuestos += total_impuestos
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         if tipo_documento_fel not in ['NABN']:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
-        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total))
+        GranTotal.text = '{:.6f}'.format(gran_total)
 
         if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
