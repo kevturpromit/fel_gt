@@ -189,7 +189,7 @@ class AccountMove(models.Model):
         Pais = etree.SubElement(DireccionReceptor, DTE_NS+"Pais")
         Pais.text = factura.partner_id.country_id.code or 'GT'
 
-        if tipo_documento_fel not in ['NDEB', 'NCRE', 'RECI', 'NABN', 'FESP']:
+        if tipo_documento_fel not in ['NDEB', 'NCRE', 'NABN', 'FESP']:
             ElementoFrases = etree.fromstring(factura.company_id.frases_fel)
             DatosEmision.append(ElementoFrases)
 
@@ -234,7 +234,7 @@ class AccountMove(models.Model):
             Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
             Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
             Descuento.text = '{:.6f}'.format(descuento)
-            if tipo_documento_fel not in ['NABN']:
+            if tipo_documento_fel not in ['NABN', 'RECI']:
                 Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
                 Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                 NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
@@ -255,7 +255,7 @@ class AccountMove(models.Model):
             gran_total_impuestos += total_impuestos
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
-        if tipo_documento_fel not in ['NABN']:
+        if tipo_documento_fel not in ['NABN', 'RECI']:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
