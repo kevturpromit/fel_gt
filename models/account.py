@@ -291,7 +291,7 @@ class AccountMove(models.Model):
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                     
             Total = etree.SubElement(Item, DTE_NS+"Total")
-            Total.text = '{:.6f}'.format(total_linea)
+            Total.text = '{:.6f}'.format(total_linea+total_impuestos_isd)
             
             gran_total += total_linea
             gran_subtotal += total_linea_base
