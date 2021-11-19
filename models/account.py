@@ -472,7 +472,6 @@ class ResCompany(models.Model):
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
     
-<<<<<<< HEAD
 class ProductTemplate(models.Model):
     _inherit = "product.template"
     
@@ -481,5 +480,3 @@ class ProductTemplate(models.Model):
     codigo_unidad_gravable = fields.Integer('Código Unidad Gravable')
     cantidad_unidad_gravable = fields.Float('Cantidad Unidad Gravable')
     
-=======
->>>>>>> 13.0
