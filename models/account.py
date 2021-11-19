@@ -48,10 +48,13 @@ class AccountMove(models.Model):
         else:
             raise UserError('No se publicó la factura por error del certificador FEL: '+error)
 
-    def requiere_certificacion(self):
+    def requiere_certificacion(self, certificador=''):
         self.ensure_one()
         factura = self
-        return factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
+        requiere = factura.is_invoice() and factura.journal_id.generar_fel and factura.amount_total != 0
+        if certificador:
+            requiere = requiere and ( factura.company_id.certificador_fel == certificador )
+        return requiere
 
     def error_pre_validacion(self):
         self.ensure_one()
@@ -186,8 +189,11 @@ class AccountMove(models.Model):
         Pais = etree.SubElement(DireccionReceptor, DTE_NS+"Pais")
         Pais.text = factura.partner_id.country_id.code or 'GT'
 
-        if tipo_documento_fel not in ['NDEB', 'NCRE', 'RECI', 'NABN', 'FESP']:
+        if tipo_documento_fel not in ['NDEB', 'NCRE', 'NABN', 'FESP']:
             ElementoFrases = etree.fromstring(factura.company_id.frases_fel)
+            if tipo_documento_fel not in ['FACT', 'FCAM']:
+                frase_isr = ElementoFrases.find('.//*[@TipoFrase="1"]')
+                ElementoFrases.remove(frase_isr)
             DatosEmision.append(ElementoFrases)
 
         Items = etree.SubElement(DatosEmision, DTE_NS+"Items")
@@ -248,7 +254,7 @@ class AccountMove(models.Model):
             Precio.text = '{:.6f}'.format(precio_sin_descuento * linea.quantity)
             Descuento = etree.SubElement(Item, DTE_NS+"Descuento")
             Descuento.text = '{:.6f}'.format(descuento)
-            if tipo_documento_fel not in ['NABN']:
+            if tipo_documento_fel not in ['NABN', 'RECI']:
                 Impuestos = etree.SubElement(Item, DTE_NS+"Impuestos")
                 Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
                 NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
@@ -285,26 +291,26 @@ class AccountMove(models.Model):
                     MontoImpuesto.text = '{:.6f}'.format(total_impuestos_isd)
                     
             Total = etree.SubElement(Item, DTE_NS+"Total")
-            Total.text = '{:.3f}'.format(total_linea+total_impuestos_isd)
-
-            gran_total += factura.currency_id.round(total_linea)
-            gran_subtotal += factura.currency_id.round(total_linea_base)
-            gran_total_impuestos += factura.currency_id.round(total_impuestos)
-            gran_total_impuestos_isd += factura.currency_id.round(total_impuestos_isd)
-            gran_total_impuestos_isd_alcoholico += factura.currency_id.round(total_impuestos_isd_alcoholico)
-            gran_total_impuestos_isd_no_alcoholico += factura.currency_id.round(total_impuestos_isd_no_alcoholico)
+            Total.text = '{:.6f}'.format(total_linea)
+            
+            gran_total += total_linea
+            gran_subtotal += total_linea_base
+            gran_total_impuestos += total_impuestos
+            gran_total_impuestos_isd += total_impuestos_isd
+            gran_total_impuestos_isd_alcoholico += total_impuestos_isd_alcoholico
+            gran_total_impuestos_isd_no_alcoholico += total_impuestos_isd_no_alcoholico
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
-        if tipo_documento_fel not in ['NABN']:
+        if tipo_documento_fel not in ['NABN', 'RECI']:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
-            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos)))
+            TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos))
             if gran_total_impuestos_isd_alcoholico > 0:
-                TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS ALCOHOLICAS", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos_isd_alcoholico)))
+                TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS ALCOHOLICAS", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos_isd_alcoholico))
             if gran_total_impuestos_isd_no_alcoholico > 0:
-                TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS NO ALCOHOLICAS", TotalMontoImpuesto='{:.3f}'.format(factura.currency_id.round(gran_total_impuestos_isd_no_alcoholico)))
+                TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="BEBIDAS NO ALCOHOLICAS", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos_isd_no_alcoholico))
 
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
-        GranTotal.text = '{:.3f}'.format(factura.currency_id.round(gran_total+gran_total_impuestos_isd))
+        GranTotal.text = '{:.6f}'.format(gran_total+gran_total_impuestos_isd)
 
         if DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases") and factura.currency_id.is_zero(gran_total_impuestos) and (factura.company_id.afiliacion_iva_fel or 'GEN') == 'GEN':
             Frase = etree.SubElement(DatosEmision.find("{http://www.sat.gob.gt/dte/fel/0.2.0}Frases"), DTE_NS+"Frase", CodigoEscenario=str(factura.frase_exento_fel) if factura.frase_exento_fel else "1", TipoFrase="4")
@@ -455,16 +461,18 @@ class AccountJournal(models.Model):
 
     generar_fel = fields.Boolean('Generar FEL')
     tipo_documento_fel = fields.Selection([('FACT', 'FACT'), ('FCAM', 'FCAM'), ('FPEQ', 'FPEQ'), ('FCAP', 'FCAP'), ('FESP', 'FESP'), ('NABN', 'NABN'), ('RDON', 'RDON'), ('RECI', 'RECI'), ('NDEB', 'NDEB'), ('NCRE', 'NCRE')], 'Tipo de Documento FEL', copy=False)
-    error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en patalla, solo se registran en el historial')
+    error_en_historial_fel = fields.Boolean('Registrar error FEL', help='Los errores no se muestran en pantalla, solo se registran en el historial')
     contingencia_fel = fields.Boolean('Habilitar contingencia FEL')
     
 class ResCompany(models.Model):
     _inherit = "res.company"
 
+    certificador_fel = fields.Selection([], 'Certificador FEL')
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
     
+<<<<<<< HEAD
 class ProductTemplate(models.Model):
     _inherit = "product.template"
     
@@ -473,3 +481,5 @@ class ProductTemplate(models.Model):
     codigo_unidad_gravable = fields.Integer('Código Unidad Gravable')
     cantidad_unidad_gravable = fields.Float('Cantidad Unidad Gravable')
     
+=======
+>>>>>>> 13.0
