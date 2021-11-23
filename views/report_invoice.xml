@@ -208,7 +208,7 @@
                     </div>
                     <t t-if="o.journal_id.tipo_documento_fel in [9,'NDEB'] or o.journal_id.tipo_documento_fel in [10,'NCRE']">
                         <t t-if="o.factura_original_id">
-                            <br/>Factura Asociada: Serie Fel <span t-field="o.factura_original_id.serie_fel"/>, Número Fel: <span t-field="o.factura_original_id.numero_fel"/>, Fecha de Emisión: <span t-field="o.factura_original_id.date_invoice"/>
+                            <br/>Factura Asociada: Serie Fel <span t-field="o.factura_original_id.serie_fel"/>, Número Fel: <span t-field="o.factura_original_id.numero_fel"/>, Fecha de Emisión: <span t-field="o.factura_original_id.invoice_date"/>
                         </t>
                     </t>
                     <div>Sujeto a pagos trimestrales ISR</div>
