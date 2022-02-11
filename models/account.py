@@ -17,6 +17,7 @@ import odoo.addons.l10n_gt_extra.a_letras as a_letras
 #from xades.policy import GenericPolicyId, ImpliedPolicy
 
 import logging
+import re
 
 class AccountMove(models.Model):
     _inherit = "account.move"
@@ -205,6 +206,7 @@ class AccountMove(models.Model):
         gran_subtotal = 0
         gran_total = 0
         gran_total_impuestos = 0
+        gran_total_impuestos_timbre = 0
         cantidad_impuestos = 0
         self.descuento_lineas()
         
@@ -226,6 +228,17 @@ class AccountMove(models.Model):
             total_linea_base = precio_unitario_base * linea.quantity
             total_impuestos = total_linea - total_linea_base
             cantidad_impuestos += len(linea.tax_ids)
+            
+            total_impuestos_timbre = 0
+            
+            if len(linea.tax_ids) > 1:
+                impuestos = linea.tax_ids.compute_all(precio_unitario, currency=factura.currency_id, quantity=linea.quantity, product=linea.product_id, partner=factura.partner_id)
+                
+                for i in impuestos['taxes']:
+                    if re.search('timbre', i['name'], re.IGNORECASE):
+                        total_impuestos_timbre += i['amount']
+                        
+            total_linea += total_impuestos_timbre
 
             Item = etree.SubElement(Items, DTE_NS+"Item", BienOServicio=tipo_producto, NumeroLinea=str(linea_num))
             Cantidad = etree.SubElement(Item, DTE_NS+"Cantidad")
@@ -253,17 +266,31 @@ class AccountMove(models.Model):
                 MontoGravable.text = '{:.6f}'.format(total_linea_base)
                 MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
                 MontoImpuesto.text = '{:.6f}'.format(total_impuestos)
+                if not factura.currency_id.is_zero(total_impuestos_timbre):
+                    Impuesto = etree.SubElement(Impuestos, DTE_NS+"Impuesto")
+                    NombreCorto = etree.SubElement(Impuesto, DTE_NS+"NombreCorto")
+                    NombreCorto.text = "TIMBRE DE PRENSA"
+                    CodigoUnidadGravable = etree.SubElement(Impuesto, DTE_NS+"CodigoUnidadGravable")
+                    CodigoUnidadGravable.text = "1"
+                    MontoGravable = etree.SubElement(Impuesto, DTE_NS+"MontoGravable")
+                    MontoGravable.text = '{:.6f}'.format(total_linea_base)
+                    MontoImpuesto = etree.SubElement(Impuesto, DTE_NS+"MontoImpuesto")
+                    MontoImpuesto.text = '{:.6f}'.format(total_impuestos_timbre)
+                    
             Total = etree.SubElement(Item, DTE_NS+"Total")
             Total.text = '{:.6f}'.format(total_linea)
 
             gran_total += total_linea
             gran_subtotal += total_linea_base
             gran_total_impuestos += total_impuestos
+            gran_total_impuestos_timbre += total_impuestos_timbre
 
         Totales = etree.SubElement(DatosEmision, DTE_NS+"Totales")
         if tipo_documento_fel not in ['NABN', 'RECI']:
             TotalImpuestos = etree.SubElement(Totales, DTE_NS+"TotalImpuestos")
             TotalImpuesto = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="IVA", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos))
+            if not factura.currency_id.is_zero(gran_total_impuestos_timbre):
+                TotalImpuestoTimbre = etree.SubElement(TotalImpuestos, DTE_NS+"TotalImpuesto", NombreCorto="TIMBRE DE PRENSA", TotalMontoImpuesto='{:.6f}'.format(gran_total_impuestos_timbre))
         GranTotal = etree.SubElement(Totales, DTE_NS+"GranTotal")
         GranTotal.text = '{:.6f}'.format(gran_total)
 
@@ -426,4 +453,3 @@ class ResCompany(models.Model):
     afiliacion_iva_fel = fields.Selection([('GEN', 'GEN'), ('PEQ', 'PEQ'), ('EXE', 'EXE')], 'Afiliación IVA FEL', default='GEN')
     frases_fel = fields.Text('Frases FEL')
     adenda_fel = fields.Text('Adenda FEL')
-    
